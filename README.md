@@ -18,7 +18,7 @@
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
    - `var/lib/mysql` - To access the data (/var/lib/mysql).
-   - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
+   - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is faster and takes less resources than TCP.
 3. Create the following file `/srv/.env` with the following content:
 ```
 HA_DB_HOSTNAME=localhost
