@@ -3,20 +3,26 @@
 ## Prequisities
 
 - We want a clean and module-based installation.
+  - Store under `/srv`.
+  - Utilize Bind mounts in docker to store data outside the containers.
 - We utilize official docker images only.
 - We utilize MariaDB as main database-engine.
 - We utilize InfluxDB as history database-engine.
 - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
+  - For now we have all on the same RPI, we may need move InfluxDB and/or Grafana later.
 
 ## Installation for MariaDB
 
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
    - If you do not want the latest version, copy the version number.
-4. Create the directory `/srv/ha-db`, and the following sub-directories:
+2. Create the directory `/srv/ha-db`, and the following sub-directories:
    - `lib` - To capture the data (/var/lib/mysql).
-   - `log` - To capture the logs (/var/log/mysql). Are these really needed?
-   - `etc` - To capture the config (/etc/mysql). Are these really needed?
-6. Create the following file `/srv/docker-compose.yml` with the following content:
+3. Create the following file `/srv/.env` with the following content:
+```
+DB_ROOT_PASSWORD=[not shown here]
+DB_PASSWORD=[not shown here]
+```
+4. Create the following file `/srv/docker-compose.yml` with the following content:
 ```
 version: '3'
 
@@ -28,16 +34,13 @@ services:
 # We do not have any ports here as we want bridge-based docker network only within the host.
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD: [not shown here]
+      - MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       - MYSQL_DATABASE: ha-db
       - MYSQL_USER: ha-db-user
-      - MYSQL_PASSWORD: [not shown here]
+      - MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
 # We utilize Bind mounts.
       - "/srv/ha-db/lib:/var/lib/mysql"
-# Are these two needed?
-      - "/srv/ha-db/log:/var/log/mysql"
-      - "/srv/ha-db/etc:/etc/mysql"
 ```
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
@@ -89,3 +92,7 @@ ha-history-db:
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
    ```
+
+## Installation for Grafana
+
+Coming soon.
