@@ -32,12 +32,13 @@ services:
     image: mariadb:latest
     container_name: ha-db
 # We do not have any ports here as we want bridge-based docker network only within the host.
+    network_mode: bridge
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE: ha-db
-      - MYSQL_USER: ha-db-user
-      - MYSQL_PASSWORD: ${DB_PASSWORD}
+      - '"MYSQL_ROOT_PASSWORD":"${DB_ROOT_PASSWORD}"'
+      - '"MYSQL_DATABASE":"ha-db"'
+      - '"MYSQL_USER":"ha-db-user"'
+      - '"MYSQL_PASSWORD":"${DB_PASSWORD}"'
     volumes:
 # We utilize Bind mounts.
       - "/srv/ha-db/lib:/var/lib/mysql"
@@ -48,21 +49,24 @@ services:
    ```shell
    pi@server1:/srv $ sudo docker-compose up -d
    Creating network "srv_default" with the default driver
-   Creating srv_ha-db_1 ... done
+   Creating ha-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
    pi@server1:/srv $ sudo docker ps
-   CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS      NAMES
-   5aea58eeea44   mariadb   "docker-entrypoint.s…"   3 minutes ago   Up 3 minutes   3306/tcp   srv_ha-db_1
+   CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS                  PORTS      NAMES
+   5edd4cc80759   mariadb:latest   "docker-entrypoint.s…"   6 seconds ago   Up Less than a second   3306/tcp   ha-db
    ```
 
 ## Installation for InfluxDB
 
 1. Check versions of available docker images for MariaDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the latest version, copy the version number.
-4. Create the directory `/srv/ha-history-db`, and the following sub-directory:
+2. Create the directory `/srv/ha-history-db`, and the following sub-directory:
    - `lib` - To capture the data (/var/lib/influxdb).
+3. For the file `/srv/.env` add the following content:
+```
+```
 6. For the following file `/srv/docker-compose.yml` add the following content:
 ```
 
