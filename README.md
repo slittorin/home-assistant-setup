@@ -49,7 +49,7 @@ services:
 # The data resides in /var/lib/mysql.
       - "/srv/ha-db/var/lib/mysql:/var/lib/mysql"
       - "/srv/ha-db/var/run/mysqld:/var/run/mysqld"
-```:wq!
+```
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
