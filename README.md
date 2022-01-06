@@ -18,7 +18,7 @@
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
    - `/var/lib/mysql` - To capture the data (/var/lib/mysql).
-   - `/var/run/mysql` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
+   - `/var/run/mysqld` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
 3. Create the following file `/srv/.env` with the following content:
 ```
 HA_DB_HOSTNAME=localhost
@@ -48,8 +48,8 @@ services:
 # We utilize Host/Bind mounts.
 # The data resides in /var/lib/mysql.
       - "/srv/ha-db/var/lib/mysql:/var/lib/mysql"
-      - "/srv/ha-db/var/run/mysql:/var/run/mysql"
-```
+      - "/srv/ha-db/var/run/mysqld:/var/run/mysqld"
+```:wq!
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
