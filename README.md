@@ -17,12 +17,14 @@
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
-   - `/var/lib/mysql` - To capture the data (/var/lib/mysql).
-   - `/var/run/mysqld` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
+   - `var/lib/mysql` - To access the data (/var/lib/mysql).
+   - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
 3. Create the following file `/srv/.env` with the following content:
 ```
 HA_DB_HOSTNAME=localhost
 HA_DB_ROOT_PASSWORD=[not shown here]
+HA_DB_DATABASE=ha-db
+HA_DB_USER=ha-db-user
 HA_DB_PASSWORD=[not shown here]
 ```
 4. Create the following file `/srv/docker-compose.yml` with the following content:
@@ -41,12 +43,10 @@ services:
       - .env
     environment:
       - MYSQL_ROOT_PASSWORD=${HA_DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE=ha-db
-      - MYSQL_USER=ha-db-user
+      - MYSQL_DATABASE=${HA_DB_DATABASE}
+      - MYSQL_USER=${HA_DB_USER}
       - MYSQL_PASSWORD=${HA_DB_PASSWORD}
-    volumes:
-# We utilize Host/Bind mounts.
-# The data resides in /var/lib/mysql.
+    volumes:cd ..
       - "/srv/ha-db/var/lib/mysql:/var/lib/mysql"
       - "/srv/ha-db/var/run/mysqld:/var/run/mysqld"
 ```
@@ -69,9 +69,15 @@ services:
 1. Check versions of available docker images for MariaDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-history-db`, and the following sub-directory:
-   - `lib` - To capture the data (/var/lib/influxdb).
+   - `var/lib/influxdb` - To access the data (/var/lib/influxdb).
+   - 'etc/influxdb` - To access the config file.
 3. For the file `/srv/.env` add the following content:
 ```
+HA_HISTORY_DB_HOSTNAME=localhost
+HA_HISTORY_DB_ROOT_USER=influxdb_admin
+HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
+HA_HISTORY_DB_ORG=lite
+HA_HISTORY_DB_BUCKET=ha
 ```
 6. For the following file `/srv/docker-compose.yml` add the following content:
 ```
@@ -81,18 +87,19 @@ ha-history-db:
     image: influxdb:latest
     container_name: ha-history-db
 # We do not have any ports here as we want bridge-based docker network only within the host.
+    network_mode: bridge
     restart: always
+    env_file:
+      - .env
     environment:
-      - INFLUXDB_DB=db0
-      - INFLUXDB_USER=telegraf
-      - INFLUXDB_ADMIN_ENABLED=true
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=Welcome1 
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${HA_HISTORY_DB_ROOT_USER}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${HA_HISTORY_DB_ROOT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${HA_HISTORY_DB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${HA_HISTORY_DB_BUCKET}
     volumes:
-# We utilize Bind mounts.
-      - "/srv/ha-history-db/lib:/var/lib/influxdb"
-      - "/srv/ha-history-db/influxdb.conf:/etc/influxdb/influxdb.conf:ro"
-      - "/srv/ha-history-db/init:/docker-entrypoint-initdb.d"
+      - "/srv/ha-history-db/var/lib/influxdb:/var/lib/influxdb"
+      - "/srv/ha-history-db/etc/influxdb:/etc/influxdb"
 ```
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
