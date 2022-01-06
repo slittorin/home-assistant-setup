@@ -49,7 +49,7 @@ services:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
    ```shell
-   pi@server1:/srv $ sudo docker-compose up -dsudo
+   pi@server1:/srv $ sudo docker-compose up -d
    Creating ha-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
