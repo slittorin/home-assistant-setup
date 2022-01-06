@@ -66,7 +66,7 @@ services:
 
 ## Installation for InfluxDB
 
-1. Check versions of available docker images for MariaDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
+1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-history-db`, and the following sub-directory:
    - `var/lib/influxdb` - To access the data (/var/lib/influxdb).
