@@ -9,6 +9,7 @@
 - We utilize MariaDB as main database-engine.
 - We utilize InfluxDB as history database-engine.
 - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
+  - Preferably it shall have an SSD disk to not degrade/destroy SD card.
   - For now we have all on the same RPI, we may need move InfluxDB and/or Grafana later.
 
 ## Installation for MariaDB
@@ -16,11 +17,13 @@
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
-   - `lib` - To capture the data (/var/lib/mysql).
+   - `/var/lib/mysql` - To capture the data (/var/lib/mysql).
+   - `/var/run/mysql` - To be able to use sockets (mysqld.sock) that is much faster and takes less resources than TCP.
 3. Create the following file `/srv/.env` with the following content:
 ```
-DB_ROOT_PASSWORD=[not shown here]
-DB_PASSWORD=[not shown here]
+HA_DB_HOSTNAME=localhost
+HA_DB_ROOT_PASSWORD=[not shown here]
+HA_DB_PASSWORD=[not shown here]
 ```
 4. Create the following file `/srv/docker-compose.yml` with the following content:
 ```
@@ -37,13 +40,15 @@ services:
     env_file:
       - .env
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${HA_DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=ha-db
       - MYSQL_USER=ha-db-user
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_PASSWORD=${HA_DB_PASSWORD}
     volumes:
 # We utilize Host/Bind mounts.
-      - "/srv/ha-db/lib:/var/lib/mysql"
+# The data resides in /var/lib/mysql.
+      - "/srv/ha-db/var/lib/mysql:/var/lib/mysql"
+      - "/srv/ha-db/var/run/mysql:/var/run/mysql"
 ```
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
