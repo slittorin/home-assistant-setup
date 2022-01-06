@@ -70,7 +70,7 @@ services:
    - If you do not want the latest version, copy the version number.
 2. Create the directory `/srv/ha-history-db`, and the following sub-directory:
    - `var/lib/influxdb` - To access the data (/var/lib/influxdb).
-   - 'etc/influxdb` - To access the config file.
+   - `etc/influxdb` - To access the config file.
 3. For the file `/srv/.env` add the following content:
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
