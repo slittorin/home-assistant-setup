@@ -34,21 +34,22 @@ services:
 # We do not have any ports here as we want bridge-based docker network only within the host.
     network_mode: bridge
     restart: always
+    env_file:
+      - .env
     environment:
-      - '"MYSQL_ROOT_PASSWORD":"${DB_ROOT_PASSWORD}"'
-      - '"MYSQL_DATABASE":"ha-db"'
-      - '"MYSQL_USER":"ha-db-user"'
-      - '"MYSQL_PASSWORD":"${DB_PASSWORD}"'
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=ha-db
+      - MYSQL_USER=ha-db-user
+      - MYSQL_PASSWORD=${DB_PASSWORD}
     volumes:
-# We utilize Bind mounts.
+# We utilize Host/Bind mounts.
       - "/srv/ha-db/lib:/var/lib/mysql"
 ```
 3. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
-   - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d`. The output should look like the following:
+   - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
    ```shell
-   pi@server1:/srv $ sudo docker-compose up -d
-   Creating network "srv_default" with the default driver
+   pi@server1:/srv $ sudo docker-compose up -dsudo
    Creating ha-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
