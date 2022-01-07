@@ -9,8 +9,11 @@
     - With volumes for data/config, and only where required bind-mounts.
     - Use `docker cp`, `docker save` or similar to copy/backup data.
 - MariaDB as main database-engine.
+  - We utiize mysqld-volume for mysqld-socket communication that is faster and takes less resources than TCP.
 - InfluxDB as history database-engine.
 - Grafana as data visualization-engine.
+- Home Assistant as automation-engine.
+  - We utilize the mysqld-socket volume.
 - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
   - Preferably it shall have an SSD disk to not degrade/destroy SD card.
   - For now we have all on the same RPI, we may need move InfluxDB and/or Grafana later.
@@ -32,10 +35,10 @@
 ## Installation for MariaDB
 
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
-   - If you do not want the 'latest' version, copy the version number.
+   - If you do not want the 'latest' version, , use version number.
    - At time of writing (20220207) the 'latest' version is 10.6 (isolated with `sudo docker image inspect mariadb`).
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
-   - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is faster and takes less resources than TCP.
+   - At present no specific directories are used.
 3. For the following file `/srv/.env` add the following content:
 ```
 HA_DB_HOSTNAME=localhost
@@ -65,12 +68,13 @@ HA_DB_PASSWORD=[not shown here]
     volumes:
       - "ha-db-data:/var/lib/mysql"
       - "ha-db-config:/etc/mysql/"
-      - "/srv/ha-db/var/run/mysqld:/var/run/mysqld"
+      - "ha-db-mysqld:/var/run/mysqld"
 ```
 5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
 ```
   ha-db-data:
   ha-db-config:
+  ha-db-mysqld:
 ```
 6. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
@@ -78,6 +82,7 @@ HA_DB_PASSWORD=[not shown here]
    ```shell
    Creating volume "srv_ha-db-data" with default driver
    Creating volume "srv_ha-db-config" with default driver
+   Creating volume "srv_ha-db-mysqld" with default driver
    Creating ha-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
@@ -89,10 +94,11 @@ HA_DB_PASSWORD=[not shown here]
 ## Installation for InfluxDB
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
-   - If you do not want the 'latest' version, copy the version number.
+   - If you do not want the 'latest' version, use version number.
    - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
-2. Create the directory `/srv/ha-history-db`.
-3. For the file `/srv/.env` add the following content:
+2. Create the directory `/srv/ha-history-db`, and the following sub-directories:
+   - At present no specific directories are used.
+4. For the file `/srv/.env` add the following content:
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
 HA_HISTORY_DB_ROOT_USER=influxdb_admin
@@ -134,7 +140,7 @@ HA_HISTORY_DB_BUCKET=ha
    ```shell
    Creating volume "srv_ha-history-db-data" with default driver
    Creating volume "srv_ha-history-db-config" with default driver
-   Recreating ha-db       ... done
+   ha-db is up-to-date
    Creating ha-history-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
@@ -147,10 +153,11 @@ HA_HISTORY_DB_BUCKET=ha
 ## Installation for Grafana
 
 1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
-   - If you do not want the 'latest' version, copy the version number, or use 'main'.
+   - If you do not want the 'latest' version, use version number, or use 'main'.
    - At time of writing (20220207) the 'latest' version is 8.3.3 (isolated with running the command `/usr/share/grafana/bin/grafana-server -v` on the container).
-2. Create the directory `/srv/ha-grafana`.
-3. For the file `/srv/.env` add the following content:
+2. Create the directory `/srv/ha-grafana`, and the following sub-directories:
+   - At present no specific directories are used.
+4. For the file `/srv/.env` add the following content:
 ```
 HA_GRAFANA_HOSTNAME=localhost
 ```
@@ -188,9 +195,9 @@ HA_GRAFANA_HOSTNAME=localhost
    ```shell
    Creating volume "srv_ha-grafana-data" with default driver
    Creating volume "srv_ha-grafana-config" with default driver
-   Recreating ha-db         ... done
-   Recreating ha-history-db ... done
-   Creating ha-grafana      ... done
+   ha-history-db is up-to-date
+   ha-db is up-to-date
+   Creating ha-grafana ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
@@ -203,10 +210,11 @@ HA_GRAFANA_HOSTNAME=localhost
 ## Installation for Home Assistant
 
 1. Check versions of available docker images for Home Assistant at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
-   - If you do not want the 'latest' version, copy the version number, or use 'stable'.
+   - If you do not want the 'latest' version, use version number, or use 'stable'.
    - At time of writing (20220207) the 'stable' version is X.X.X (isolated with XXX).
-2. Create the directory `/srv/ha`.
-3. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+2. Create the directory `/srv/ha`, and the following sub-directories:
+   - `config` - To easily get access to the configuration files for HA.
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
 ```
 # Service: Home Assistant.
 # -----------------------------------------------------------------------------------
@@ -215,7 +223,6 @@ HA_GRAFANA_HOSTNAME=localhost
     image: homeassistant/home-assistant:stable
     container_name: ha
 # We want HA to be accessible on the network.
-    network_mode: host
     ports:
       - "8123:8123"
     restart: on-failure
@@ -226,29 +233,25 @@ HA_GRAFANA_HOSTNAME=localhost
       - ha-history-db
       - ha-grafana
     volumes:
-      - "ha-config:/config"
+      - "/srv/ha/config:/config"
       - "/etc/localtime:/etc/localtime:ro"
+      - "ha-db-mysqld:/var/run/mysqld"
 ```
-4. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
-```
-  ha-config:
-```
-5. In the `/srv` directory:
+4. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
-   Creating volume "srv_ha-config" with default driver
-   ha-history-db is up-to-date
-   ha-grafana is up-to-date
+   Creating network "srv_default" with the default driver
    ha-db is up-to-date
+   ha-grafana is up-to-date
+   ha-history-db is up-to-date
    Creating ha ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
-   CONTAINER ID   IMAGE                                 COMMAND                  CREATED              STATUS              PORTS      NAMES
-   67cca847021b   homeassistant/home-assistant:stable   "/init"                  About a minute ago   Up About a minute              ha
-   d2030bfce42a   mariadb:latest                        "docker-entrypoint.s…"   43 minutes ago       Up 43 minutes       3306/tcp   ha-db
-   3e82d3d00e9f   influxdb:latest                       "/entrypoint.sh infl…"   43 minutes ago       Up 43 minutes       8086/tcp   ha-history-db
-   aae462b4ae93   grafana/grafana:latest                "/run.sh"                43 minutes ago       Up 43 minutes       3000/tcp   ha-grafana
-
+   CONTAINER ID   IMAGE                                 COMMAND                  CREATED          STATUS          PORTS                    NAMES
+   f994d95d319e   homeassistant/home-assistant:stable   "/init"                  24 seconds ago   Up 22 seconds   0.0.0.0:8123->8123/tcp   ha
+   e61bdcdb9531   grafana/grafana:latest                "/run.sh"                4 minutes ago    Up 4 minutes    3000/tcp                 ha-grafana
+   1be625a981fc   influxdb:latest                       "/entrypoint.sh infl…"   5 minutes ago    Up 5 minutes    8086/tcp                 ha-history-db
+   e4117f81816e   mariadb:latest                        "docker-entrypoint.s…"   7 minutes ago    Up 7 minutes    3306/tcp                 ha-db
    ```
