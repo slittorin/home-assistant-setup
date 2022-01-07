@@ -2,6 +2,8 @@
 
 ## Governing principles
 
+- We want to utilize RPI standard OS, and not HASS.io that would get the whole server to be only for Home Assistant.
+  - We want to be more in control and utilize the server for other tasks also.
 - We want a clean and module-based installation.
   - Store all config/data under `/srv`.
   - Utilize docker:
