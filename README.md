@@ -219,7 +219,7 @@ HA will state that we are running an unsupported installation.
 3. Isolate the latest HA Agent from [Home Assistant Agent - Download](https://github.com/home-assistant/os-agent/releases/latest).
    - At 20220207 it is 1.2.2.
 4. Go to directory '/srv/ha/downloads' and download the right HA Agent package with 'sudo wget https://github.com/home-assistant/os-agent/releases/download/1.2.2/os-agent_1.2.2_linux_aarch64.deb' (change the version according step 3).
-   - As we are using 64bit version for RPI 4, we need to download that version, not armv7 that would otherwise work.
+   - As we are using 64 bit version for RPI 4, we need to download this version, not armv7 that would otherwise work for 32 bit version.
 
 # Deprecated - Not valid
 
