@@ -36,7 +36,7 @@
 
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
    - If you do not want the 'latest' version, , use version number.
-   - At time of writing (20220207) the 'latest' version is 10.6 (isolated with `sudo docker image inspect mariadb`).
+   - At time of writing (20220207) the 'latest' version is 10.6.5 (isolated with `sudo docker image inspect mariadb` and looking for 'MARIADB_VERSION').
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
    - At present no specific directories are used.
 3. For the following file `/srv/.env` add the following content:
@@ -95,7 +95,7 @@ HA_DB_PASSWORD=[not shown here]
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the 'latest' version, use version number.
-   - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
+   - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb` and looking for 'INFLUXDB_VERSION').
 2. Create the directory `/srv/ha-history-db`, and the following sub-directories:
    - At present no specific directories are used.
 4. For the file `/srv/.env` add the following content:
@@ -211,7 +211,7 @@ HA_GRAFANA_HOSTNAME=localhost
 
 1. Check versions of available docker images for Home Assistant at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
    - If you do not want the 'latest' version, use version number, or use 'stable'.
-   - At time of writing (20220207) the 'stable' version is X.X.X (isolated with XXX).
+   - At time of writing (20220207) the 'stable' version is 2021.12.8 (isolated with `sudo docker image inspect homeassistant/home-assistant:stable` and looking for 'org.opencontainers.image.version').
 2. Create the directory `/srv/ha`, and the following sub-directories:
    - `config` - To easily get access to the configuration files for HA.
 4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
