@@ -148,7 +148,7 @@ HA_HISTORY_DB_BUCKET=ha
 
 1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
    - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is 8.2.6 (isolated with `sudo docker image inspect influxdb`).
+   - At time of writing the latest version is 8.3.3 (isolated with running the command `/usr/share/grafana/bin/grafana-server -v` on the container).
 2. Create the directory `/srv/ha-grafana`.
 3. For the file `/srv/.env` add the following content:
 ```
@@ -199,3 +199,42 @@ HA_GRAFANA_HOSTNAME=localhost
    3e82d3d00e9f   influxdb:latest          "/entrypoint.sh infl…"   23 seconds ago   Up 21 seconds   8086/tcp   ha-history-db
    aae462b4ae93   grafana/grafana:latest   "/run.sh"                23 seconds ago   Up 21 seconds   3000/tcp   ha-grafana
    ```
+
+## Installation for Home Assistant
+
+1. Check versions of available docker images for Grafana at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
+   - If you do not want the latest version, copy the version number.
+   - At time of writing the latest version is X.X.X (isolated with XXX).
+2. Create the directory `/srv/ha`.
+3. For the file `/srv/.env` add the following content:
+```
+HA_GRAFANA_HOSTNAME=localhost
+```
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+```
+# Service: Home Assistant grafana.
+# -----------------------------------------------------------------------------------
+  ha-grafana:
+# Add version number if necessary, otherwise keep 'latest'.
+    image: grafana/grafana:latest
+    container_name: ha-grafana
+# We do not have any ports here as we want bridge-based docker network only within the host.
+    network_mode: bridge
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+# This will allow you to access your Grafana dashboards without having to log in and disables a security measure that prevents you from using Grafana in an iframe.
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    volumes:
+      - "ha-grafana-data:/var/lib/grafana"
+      - "ha-grafana-config:/etc/grafana"
+```
+5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+```
+  ha-grafana-data:
+  ha-grafana-config:
+```
