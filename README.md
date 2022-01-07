@@ -54,7 +54,7 @@ HA_DB_PASSWORD=[not shown here]
     container_name: ha-db
 # We do not have any ports here as we want bridge-based docker network only within the host.
     network_mode: bridge
-    restart: always
+    restart: on-failure
     env_file:
       - .env
     environment:
@@ -82,7 +82,6 @@ HA_DB_PASSWORD=[not shown here]
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
-   pi@server1:/srv $ sudo docker ps
    CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS                  PORTS      NAMES
    5edd4cc80759   mariadb:latest   "docker-entrypoint.s…"   6 seconds ago   Up Less than a second   3306/tcp   ha-db
    ```
@@ -111,7 +110,7 @@ HA_HISTORY_DB_BUCKET=ha
     container_name: ha-history-db
 # We do not have any ports here as we want bridge-based docker network only within the host.
     network_mode: bridge
-    restart: always
+    restart: on-failure
     env_file:
       - .env
     environment:
@@ -133,7 +132,6 @@ HA_HISTORY_DB_BUCKET=ha
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
-   pi@server1:/srv $ sudo docker-compose up -d
    Creating volume "srv_ha-history-db-data" with default driver
    Creating volume "srv_ha-history-db-config" with default driver
    Recreating ha-db       ... done
@@ -148,15 +146,56 @@ HA_HISTORY_DB_BUCKET=ha
 
 ## Installation for Grafana
 
-1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
+1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
    - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
-2. Create the directory `/srv/ha-history-db`.
+   - At time of writing the latest version is 8.2.6 (isolated with `sudo docker image inspect influxdb`).
+2. Create the directory `/srv/ha-grafana`.
 3. For the file `/srv/.env` add the following content:
 ```
-HA_HISTORY_DB_HOSTNAME=localhost
-HA_HISTORY_DB_ROOT_USER=influxdb_admin
-HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
-HA_HISTORY_DB_ORG=lite
-HA_HISTORY_DB_BUCKET=ha
+HA_GRAFANA_HOSTNAME=localhost
 ```
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+```
+# Service: Home Assistant grafana.
+# -----------------------------------------------------------------------------------
+  ha-grafana:
+# Add version number if necessary, otherwise keep 'latest'.
+    image: grafana/grafana:latest
+    container_name: ha-grafana
+# We do not have any ports here as we want bridge-based docker network only within the host.
+    network_mode: bridge
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+# This will allow you to access your Grafana dashboards without having to log in and disables a security measure that prevents you from using Grafana in an iframe.
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    volumes:
+      - "ha-grafana-data:/var/lib/grafana"
+      - "ha-grafana-config:/etc/grafana"
+```
+5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+```
+  ha-grafana-data:
+  ha-grafana-config:
+```
+6. In the `/srv` directory:
+   - Pull the docker image first with `sudo docker-compose pull`.
+   - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
+   ```shell
+   Creating volume "srv_ha-grafana-data" with default driver
+   Creating volume "srv_ha-grafana-config" with default driver
+   Recreating ha-db         ... done
+   Recreating ha-history-db ... done
+   Creating ha-grafana      ... done
+   ```
+   - Verify that the container is running with `sudo docker ps`. The output should look like the following:
+   ```shell
+   CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS      NAMES
+   d2030bfce42a   mariadb:latest           "docker-entrypoint.s…"   22 seconds ago   Up 20 seconds   3306/tcp   ha-db
+   3e82d3d00e9f   influxdb:latest          "/entrypoint.sh infl…"   23 seconds ago   Up 21 seconds   8086/tcp   ha-history-db
+   aae462b4ae93   grafana/grafana:latest   "/run.sh"                23 seconds ago   Up 21 seconds   3000/tcp   ha-grafana
+   ```
