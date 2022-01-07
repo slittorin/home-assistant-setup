@@ -32,8 +32,8 @@
 ## Installation for MariaDB
 
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
-   - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is 10.6 (isolated with `sudo docker image inspect mariadb`).
+   - If you do not want the 'latest' version, copy the version number.
+   - At time of writing (20220207) the 'latest' version is 10.6 (isolated with `sudo docker image inspect mariadb`).
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
    - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is faster and takes less resources than TCP.
 3. For the following file `/srv/.env` add the following content:
@@ -89,8 +89,8 @@ HA_DB_PASSWORD=[not shown here]
 ## Installation for InfluxDB
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
-   - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
+   - If you do not want the 'latest' version, copy the version number.
+   - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
 2. Create the directory `/srv/ha-history-db`.
 3. For the file `/srv/.env` add the following content:
 ```
@@ -147,8 +147,8 @@ HA_HISTORY_DB_BUCKET=ha
 ## Installation for Grafana
 
 1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
-   - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is 8.3.3 (isolated with running the command `/usr/share/grafana/bin/grafana-server -v` on the container).
+   - If you do not want the 'latest' version, copy the version number, or use 'main'.
+   - At time of writing (20220207) the 'latest' version is 8.3.3 (isolated with running the command `/usr/share/grafana/bin/grafana-server -v` on the container).
 2. Create the directory `/srv/ha-grafana`.
 3. For the file `/srv/.env` add the following content:
 ```
@@ -202,39 +202,53 @@ HA_GRAFANA_HOSTNAME=localhost
 
 ## Installation for Home Assistant
 
-1. Check versions of available docker images for Grafana at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
-   - If you do not want the latest version, copy the version number.
-   - At time of writing the latest version is X.X.X (isolated with XXX).
+1. Check versions of available docker images for Home Assistant at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
+   - If you do not want the 'latest' version, copy the version number, or use 'stable'.
+   - At time of writing (20220207) the 'stable' version is X.X.X (isolated with XXX).
 2. Create the directory `/srv/ha`.
-3. For the file `/srv/.env` add the following content:
+3. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
 ```
-HA_GRAFANA_HOSTNAME=localhost
-```
-4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
-```
-# Service: Home Assistant grafana.
+# Service: Home Assistant.
 # -----------------------------------------------------------------------------------
-  ha-grafana:
-# Add version number if necessary, otherwise keep 'latest'.
-    image: grafana/grafana:latest
-    container_name: ha-grafana
-# We do not have any ports here as we want bridge-based docker network only within the host.
-    network_mode: bridge
+  ha:
+# We want to have the latest stable version.
+    image: homeassistant/home-assistant:stable
+    container_name: ha
+# We want HA to be accessible on the network.
+    network_mode: host
+    ports:
+      - "8123:8123"
     restart: on-failure
     env_file:
       - .env
-    environment:
-# This will allow you to access your Grafana dashboards without having to log in and disables a security measure that prevents you from using Grafana in an iframe.
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ALLOW_EMBEDDING=true
+    depends_on:
+      - ha-db
+      - ha-history-db
+      - ha-grafana
     volumes:
-      - "ha-grafana-data:/var/lib/grafana"
-      - "ha-grafana-config:/etc/grafana"
+      - "ha-config:/config"
+      - "/etc/localtime:/etc/localtime:ro"
 ```
-5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+4. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
 ```
-  ha-grafana-data:
-  ha-grafana-config:
+  ha-config:
 ```
+5. In the `/srv` directory:
+   - Pull the docker image first with `sudo docker-compose pull`.
+   - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
+   ```shell
+   Creating volume "srv_ha-config" with default driver
+   ha-history-db is up-to-date
+   ha-grafana is up-to-date
+   ha-db is up-to-date
+   Creating ha ... done
+   ```
+   - Verify that the container is running with `sudo docker ps`. The output should look like the following:
+   ```shell
+   CONTAINER ID   IMAGE                                 COMMAND                  CREATED              STATUS              PORTS      NAMES
+   67cca847021b   homeassistant/home-assistant:stable   "/init"                  About a minute ago   Up About a minute              ha
+   d2030bfce42a   mariadb:latest                        "docker-entrypoint.s…"   43 minutes ago       Up 43 minutes       3306/tcp   ha-db
+   3e82d3d00e9f   influxdb:latest                       "/entrypoint.sh infl…"   43 minutes ago       Up 43 minutes       8086/tcp   ha-history-db
+   aae462b4ae93   grafana/grafana:latest                "/run.sh"                43 minutes ago       Up 43 minutes       3000/tcp   ha-grafana
+
+   ```
