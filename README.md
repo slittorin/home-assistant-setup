@@ -1,25 +1,42 @@
 # Home Assistant - Installation
 
-## Prequisities
+## Governing principles
 
 - We want a clean and module-based installation.
-  - Store under `/srv`.
-  - Utilize Bind mounts in docker to store data outside the containers.
-- We utilize official docker images only.
-- We utilize MariaDB as main database-engine.
-- We utilize InfluxDB as history database-engine.
+  - Store all config/data under `/srv`.
+  - Utilize docker:
+    - Official docker images onlsudo docky.
+    - With volumes for data/config, and only where required bind-mounts.
+    - Use `docker cp`, `docker save` or similar to copy/backup data.
+- MariaDB as main database-engine.
+- InfluxDB as history database-engine.
+- Grafana as data visualization-engine.
 - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
   - Preferably it shall have an SSD disk to not degrade/destroy SD card.
   - For now we have all on the same RPI, we may need move InfluxDB and/or Grafana later.
+- If not otherwise stated, the user `pi` performs all actions.
+
+## Preparation
+
+1. Under `/srv`:
+   - Create the file `.env`.
+   - Create the file `/srv/docker-compose.yml` with the following content:
+     ```
+     version: '3'
+     
+     services:
+     
+     volumes:
+     ```
 
 ## Installation for MariaDB
 
 1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
    - If you do not want the latest version, copy the version number.
+   - At time of writing the latest version is 10.6 (isolated with `sudo docker image inspect mariadb`).
 2. Create the directory `/srv/ha-db`, and the following sub-directories:
-   - `var/lib/mysql` - To access the data (/var/lib/mysql).
    - `var/run/mysqld` - To be able to use sockets (mysqld.sock) that is faster and takes less resources than TCP.
-3. Create the following file `/srv/.env` with the following content:
+3. For the following file `/srv/.env` add the following content:
 ```
 HA_DB_HOSTNAME=localhost
 HA_DB_ROOT_PASSWORD=[not shown here]
@@ -27,11 +44,10 @@ HA_DB_DATABASE=ha-db
 HA_DB_USER=ha-db-user
 HA_DB_PASSWORD=[not shown here]
 ```
-4. Create the following file `/srv/docker-compose.yml` with the following content:
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
 ```
-version: '3'
-
-services:
+# Service: Home Assistant database.
+# -----------------------------------------------------------------------------------
   ha-db:
 # Add version number if necessary, otherwise keep 'latest'.
     image: mariadb:latest
@@ -46,15 +62,22 @@ services:
       - MYSQL_DATABASE=${HA_DB_DATABASE}
       - MYSQL_USER=${HA_DB_USER}
       - MYSQL_PASSWORD=${HA_DB_PASSWORD}
-    volumes:cd ..
-      - "/srv/ha-db/var/lib/mysql:/var/lib/mysql"
+    volumes:
+      - "ha-db-data:/var/lib/mysql"
+      - "ha-db-config:/etc/mysql/"
       - "/srv/ha-db/var/run/mysqld:/var/run/mysqld"
 ```
-3. In the `/srv` directory:
+5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+```
+  ha-db-data:
+  ha-db-config:
+```
+6. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
    ```shell
-   pi@server1:/srv $ sudo docker-compose up -d
+   Creating volume "srv_ha-db-data" with default driver
+   Creating volume "srv_ha-db-config" with default driver
    Creating ha-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
@@ -68,9 +91,8 @@ services:
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the latest version, copy the version number.
-2. Create the directory `/srv/ha-history-db`, and the following sub-directory:
-   - `var/lib/influxdb` - To access the data (/var/lib/influxdb).
-   - `etc/influxdb` - To access the config file.
+   - At time of writing the latest version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
+2. Create the directory `/srv/ha-history-db`.
 3. For the file `/srv/.env` add the following content:
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
@@ -79,10 +101,11 @@ HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
-6. For the following file `/srv/docker-compose.yml` add the following content:
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
 ```
-
-ha-history-db:
+# Service: Home Assistant history database.
+# -----------------------------------------------------------------------------------
+  ha-history-db:
 # Add version number if necessary, otherwise keep 'latest'.
     image: influxdb:latest
     container_name: ha-history-db
@@ -98,18 +121,42 @@ ha-history-db:
       - DOCKER_INFLUXDB_INIT_ORG=${HA_HISTORY_DB_ORG}
       - DOCKER_INFLUXDB_INIT_BUCKET=${HA_HISTORY_DB_BUCKET}
     volumes:
-      - "/srv/ha-history-db/var/lib/influxdb:/var/lib/influxdb"
-      - "/srv/ha-history-db/etc/influxdb:/etc/influxdb"
+      - "ha-history-db-data:/var/lib/influxdb"
+      - "ha-history-db-config:/etc/influxdb"
 ```
-3. In the `/srv` directory:
+5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+```
+  ha-history-db-data:
+  ha-history-db-config:
+```
+6. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
+   pi@server1:/srv $ sudo docker-compose up -d
+   Creating volume "srv_ha-history-db-data" with default driver
+   Creating volume "srv_ha-history-db-config" with default driver
+   Recreating ha-db       ... done
+   Creating ha-history-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
+   CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS          PORTS      NAMES
+   9fea6e4534e2   mariadb:latest    "docker-entrypoint.s…"   37 seconds ago   Up 35 seconds   3306/tcp   ha-db
+   a3c0df2420dc   influxdb:latest   "/entrypoint.sh infl…"   37 seconds ago   Up 36 seconds   8086/tcp   ha-history-db
    ```
 
 ## Installation for Grafana
 
-Coming soon.
+1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
+   - If you do not want the latest version, copy the version number.
+   - At time of writing the latest version is 2.1.1 (isolated with `sudo docker image inspect influxdb`).
+2. Create the directory `/srv/ha-history-db`.
+3. For the file `/srv/.env` add the following content:
+```
+HA_HISTORY_DB_HOSTNAME=localhost
+HA_HISTORY_DB_ROOT_USER=influxdb_admin
+HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
+HA_HISTORY_DB_ORG=lite
+HA_HISTORY_DB_BUCKET=ha
+```
