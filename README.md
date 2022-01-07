@@ -209,6 +209,22 @@ HA_GRAFANA_HOSTNAME=localhost
 
 ## Installation for Home Assistant
 
+To be able to utilize most features of HA, such as Add-Ons, we install HA Supervised method instead.
+The below is derived from [Install Home Assistant Supervised](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/).
+HA will state that we are running an unsupported installation.
+
+1. Add necessary packages with `sudo apt-get install jq wget curl avahi-daemon udisks2 libglib2.0-bin network-manager dbus apparmor -y`.
+2. Create the directory `/srv/ha`, and the following sub-directories:
+   - `downloads'. To store downloaded packages.
+3. Isolate the latest HA Agent from [Home Assistant Agent - Download](https://github.com/home-assistant/os-agent/releases/latest).
+   - At 20220207 it is 1.2.2.
+4. Go to directory '/srv/ha/downloads' and download the right HA Agent package with 'sudo wget https://github.com/home-assistant/os-agent/releases/download/1.2.2/os-agent_1.2.2_linux_aarch64.deb' (change the version according step 3).
+   - As we are using 64bit version for RPI 4, we need to download that version, not armv7 that would otherwise work.
+
+# Deprecated - Not valid
+
+## Installation for Home Assistant - Deprecated as of 20220207 - We cannot use all features we need with this type of installation.
+
 1. Check versions of available docker images for Home Assistant at [Docker - Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant).
    - If you do not want the 'latest' version, use version number, or use 'stable'.
    - At time of writing (20220207) the 'stable' version is 2021.12.8 (isolated with `sudo docker image inspect homeassistant/home-assistant:stable` and looking for 'org.opencontainers.image.version').
@@ -222,6 +238,8 @@ HA_GRAFANA_HOSTNAME=localhost
 # We want to have the latest stable version.
     image: homeassistant/home-assistant:stable
     container_name: ha
+# We want supervised mode.
+    privileged: true
 # We want HA to be accessible on the network.
     ports:
       - "8123:8123"
