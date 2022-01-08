@@ -1,30 +1,35 @@
 # Home Assistant - Setup
 
-Although it would be possible to install HA Supervised on a RPI, it would not be standard and would require alot of tweaks, and I want to keep the setup as standard and future proof as possible.
-Therefore we have gone for the below setup (we tried for instance [Install Home Assistant Supervised on RPI](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/) on a single server).
+Although it would be possible to install HA Supervised on one RPI with all features, it would not be standard and would require alot of tweaks, and I want to keep the setup as standard and future proof as possible (we tried for instance [Install Home Assistant Supervised on RPI](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/) on a single server).
+
+We could also utilize one server with HASS.io and addons for MariaDB, InfluxDB and Grafana, but that would most likely not be future proof as the load will increase as more data is gathered.
+
+Therefore we have gone for a two-server setup according to below.
+
+## Conceptual design
+
+Instead of one RPI server we will have two.
+- server1 on VLAN-Server (192.168.3.30):
+   - RPI 4 with 500GB SSD disk. Standard RPI, with docker and the following services:
+     - InfluxDB.
+     - Grafana.
+   - Intended also to be utilized for other projects.
+   - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
+  - homeassistant on VLAN-Server (192.168.3.20):
+    - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
+      - MariaDB.
+    - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
 
 ## Governing principles
 
-- Instead of one RPI server we will have two.
- - server1 on VLAN-Server (192.168.3.30):
-  - RPI 4 with 500GB SSD disk. Standard RPI, with docker and in docker containers:
-    - InfluxDB.
-    - Grafana.
-  - Intended also to be utilized for other projects.
-  - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
-    - We want a clean and module-based installation.
-    - Store all config/data under `/srv`.
-    - Utilize docker:
-     - Official docker images only.
-     - With volumes for data/config, and only where required bind-mounts.
-     - Use `docker cp`, `docker save` or similar to copy/backup data.
- - homeassistant on VLAN-Server (192.168.3.20):
-  - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
-    - MariaDB.
-  - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
+- Store all config/data under `/srv`.
+- For docker:
+  - Official docker images only.
+  - With volumes for data/config, and only where required bind-mounts.
+  - Use `docker cp`, `docker save` or similar to copy/backup data.
 - If not otherwise stated, the user `pi` performs all actions.
 
-## Server: server 1
+## Server - server 1
 
 ### Preparation
 
