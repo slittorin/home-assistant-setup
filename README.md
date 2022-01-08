@@ -54,7 +54,7 @@ Instead of one RPI server we will have two.
 4. For the file `/srv/.env` add the following content:
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
-HA_HISTORY_DB_ROOT_USER=influxdb_admin
+HA_HISTORY_DB_ROOT_USER=admin
 HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
@@ -67,8 +67,9 @@ HA_HISTORY_DB_BUCKET=ha
 # Add version number if necessary, otherwise keep 'latest'.
     image: influxdb:latest
     container_name: ha-history-db
-# We do not have any ports here as we want bridge-based docker network only within the host.
-    network_mode: bridge
+# We run in host mode to be able to be connected from HA.
+    ports:
+      - "8086:8086"
     restart: on-failure
     env_file:
       - .env
@@ -122,8 +123,9 @@ HA_GRAFANA_HOSTNAME=localhost
 # Add version number if necessary, otherwise keep 'latest'.
     image: grafana/grafana:latest
     container_name: ha-grafana
-# We do not have any ports here as we want bridge-based docker network only within the host.
-    network_mode: bridge
+# We run in host mode to be able to be connected from HA.
+    ports:
+      - "3000:3000"
     restart: on-failure
     env_file:
       - .env
