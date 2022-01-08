@@ -92,16 +92,15 @@ HA_HISTORY_DB_BUCKET=ha
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
+   Creating network "srv_default" with the default driver
    Creating volume "srv_ha-history-db-data" with default driver
    Creating volume "srv_ha-history-db-config" with default driver
-   ha-db is up-to-date
    Creating ha-history-db ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
-   CONTAINER ID   IMAGE             COMMAND                  CREATED          STATUS          PORTS      NAMES
-   9fea6e4534e2   mariadb:latest    "docker-entrypoint.s…"   37 seconds ago   Up 35 seconds   3306/tcp   ha-db
-   a3c0df2420dc   influxdb:latest   "/entrypoint.sh infl…"   37 seconds ago   Up 36 seconds   8086/tcp   ha-history-db
+   CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                    NAMES
+   5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    ```
 
 ### Installation for Grafana
@@ -151,15 +150,13 @@ HA_GRAFANA_HOSTNAME=localhost
    Creating volume "srv_ha-grafana-data" with default driver
    Creating volume "srv_ha-grafana-config" with default driver
    ha-history-db is up-to-date
-   ha-db is up-to-date
    Creating ha-grafana ... done
    ```
    - Verify that the container is running with `sudo docker ps`. The output should look like the following:
    ```shell
-   CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS      NAMES
-   d2030bfce42a   mariadb:latest           "docker-entrypoint.s…"   22 seconds ago   Up 20 seconds   3306/tcp   ha-db
-   3e82d3d00e9f   influxdb:latest          "/entrypoint.sh infl…"   23 seconds ago   Up 21 seconds   8086/tcp   ha-history-db
-   aae462b4ae93   grafana/grafana:latest   "/run.sh"                23 seconds ago   Up 21 seconds   3000/tcp   ha-grafana
+   CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                    NAMES
+   5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
+   304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
 
 ## Server - homeassistant
