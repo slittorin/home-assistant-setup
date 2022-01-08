@@ -1,27 +1,30 @@
-# Home Assistant - Installation
+# Home Assistant - Setup
+
+Although it would be possible to install HA Supervised on a RPI, it would not be standard and I want to keep the setup as future proof as possible.
+Therefore we have gone for the below setup (we tried for instance [Install Home Assistant Supervised on RPI](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/).
 
 ## Governing principles
 
-- We want to utilize RPI standard OS, and not HASS.io that would get the whole server to be only for Home Assistant.
-  - We want to be more in control and utilize the server for other tasks also.
-- We want a clean and module-based installation.
-  - Store all config/data under `/srv`.
-  - Utilize docker:
-    - Official docker images onlsudo docky.
-    - With volumes for data/config, and only where required bind-mounts.
-    - Use `docker cp`, `docker save` or similar to copy/backup data.
-- MariaDB as main database-engine.
-  - We utiize mysqld-volume for mysqld-socket communication that is faster and takes less resources than TCP.
-- InfluxDB as history database-engine.
-- Grafana as data visualization-engine.
-- Home Assistant as automation-engine.
-  - We utilize the mysqld-socket volume.
-- Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
-  - Preferably it shall have an SSD disk to not degrade/destroy SD card.
-  - For now we have all on the same RPI, we may need move InfluxDB and/or Grafana later.
+- We want to utilize HASS.io and RPI standards as much as possible, this means that instead of one RPI server we will have two.
+  - server1 on VLAN-Server (192.168.3.30):
+    - RPI 4 with 500GB SSD disk. Standard RPI, with docker and in docker containers: InfluxDB and Grafana.
+    - Intended also to be utilized for other projects.
+    - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
+      - We want a clean and module-based installation.
+      - Store all config/data under `/srv`.
+      - Utilize docker:
+       - Official docker images only.
+       - With volumes for data/config, and only where required bind-mounts.
+       - Use `docker cp`, `docker save` or similar to copy/backup data.
+  - homeassistant on VLAN-Server (192.168.3.20):
+    - RPI 4 with 250GB SSD disk. Standard HASS.io install, with MariaDB through HA addon.
+    - Therefore only utilized for home assistant.
+    - See below for setup.
 - If not otherwise stated, the user `pi` performs all actions.
 
-## Preparation
+## Server: server 1
+
+### Preparation
 
 1. Under `/srv`:
    - Create the file `.env`.
@@ -34,66 +37,7 @@
      volumes:
      ```
 
-## Installation for MariaDB
-
-1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
-   - If you do not want the 'latest' version, , use version number.
-   - At time of writing (20220207) the 'latest' version is 10.6.5 (isolated with `sudo docker image inspect mariadb` and looking for 'MARIADB_VERSION').
-2. Create the directory `/srv/ha-db`, and the following sub-directories:
-   - At present no specific directories are used.
-3. For the following file `/srv/.env` add the following content:
-```
-HA_DB_HOSTNAME=localhost
-HA_DB_ROOT_PASSWORD=[not shown here]
-HA_DB_DATABASE=ha-db
-HA_DB_USER=ha-db-user
-HA_DB_PASSWORD=[not shown here]
-```
-4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
-```
-# Service: Home Assistant database.
-# -----------------------------------------------------------------------------------
-  ha-db:
-# Add version number if necessary, otherwise keep 'latest'.
-    image: mariadb:latest
-    container_name: ha-db
-# We do not have any ports here as we want bridge-based docker network only within the host.
-    network_mode: bridge
-    restart: on-failure
-    env_file:
-      - .env
-    environment:
-      - MYSQL_ROOT_PASSWORD=${HA_DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${HA_DB_DATABASE}
-      - MYSQL_USER=${HA_DB_USER}
-      - MYSQL_PASSWORD=${HA_DB_PASSWORD}
-    volumes:
-      - "ha-db-data:/var/lib/mysql"
-      - "ha-db-config:/etc/mysql/"
-      - "ha-db-mysqld:/var/run/mysqld"
-```
-5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
-```
-  ha-db-data:
-  ha-db-config:
-  ha-db-mysqld:
-```
-6. In the `/srv` directory:
-   - Pull the docker image first with `sudo docker-compose pull`.
-   - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
-   ```shell
-   Creating volume "srv_ha-db-data" with default driver
-   Creating volume "srv_ha-db-config" with default driver
-   Creating volume "srv_ha-db-mysqld" with default driver
-   Creating ha-db ... done
-   ```
-   - Verify that the container is running with `sudo docker ps`. The output should look like the following:
-   ```shell
-   CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS                  PORTS      NAMES
-   5edd4cc80759   mariadb:latest   "docker-entrypoint.s…"   6 seconds ago   Up Less than a second   3306/tcp   ha-db
-   ```
-
-## Installation for InfluxDB
+### Installation for InfluxDB
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the 'latest' version, use version number.
@@ -152,7 +96,7 @@ HA_HISTORY_DB_BUCKET=ha
    a3c0df2420dc   influxdb:latest   "/entrypoint.sh infl…"   37 seconds ago   Up 36 seconds   8086/tcp   ha-history-db
    ```
 
-## Installation for Grafana
+### Installation for Grafana
 
 1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
    - If you do not want the 'latest' version, use version number, or use 'main'.
@@ -209,7 +153,7 @@ HA_GRAFANA_HOSTNAME=localhost
    aae462b4ae93   grafana/grafana:latest   "/run.sh"                23 seconds ago   Up 21 seconds   3000/tcp   ha-grafana
    ```
 
-## Installation for Home Assistant
+## Server - homeassistant
 
 To be able to utilize most features of HA, such as Add-Ons, we install HA Supervised method instead.
 The below is derived from [Install Home Assistant Supervised](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/).
@@ -274,4 +218,63 @@ HA will state that we are running an unsupported installation.
    e61bdcdb9531   grafana/grafana:latest                "/run.sh"                4 minutes ago    Up 4 minutes    3000/tcp                 ha-grafana
    1be625a981fc   influxdb:latest                       "/entrypoint.sh infl…"   5 minutes ago    Up 5 minutes    8086/tcp                 ha-history-db
    e4117f81816e   mariadb:latest                        "docker-entrypoint.s…"   7 minutes ago    Up 7 minutes    3306/tcp                 ha-db
+   ```
+
+## Installation for MariaDB
+
+1. Check versions of available docker images for MariaDB at [Docker - MariaDB](https://hub.docker.com/_/mariadb).
+   - If you do not want the 'latest' version, , use version number.
+   - At time of writing (20220207) the 'latest' version is 10.6.5 (isolated with `sudo docker image inspect mariadb` and looking for 'MARIADB_VERSION').
+2. Create the directory `/srv/ha-db`, and the following sub-directories:
+   - At present no specific directories are used.
+3. For the following file `/srv/.env` add the following content:
+```
+HA_DB_HOSTNAME=localhost
+HA_DB_ROOT_PASSWORD=[not shown here]
+HA_DB_DATABASE=ha-db
+HA_DB_USER=ha-db-user
+HA_DB_PASSWORD=[not shown here]
+```
+4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+```
+# Service: Home Assistant database.
+# -----------------------------------------------------------------------------------
+  ha-db:
+# Add version number if necessary, otherwise keep 'latest'.
+    image: mariadb:latest
+    container_name: ha-db
+# We do not have any ports here as we want bridge-based docker network only within the host.
+    network_mode: bridge
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${HA_DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${HA_DB_DATABASE}
+      - MYSQL_USER=${HA_DB_USER}
+      - MYSQL_PASSWORD=${HA_DB_PASSWORD}
+    volumes:
+      - "ha-db-data:/var/lib/mysql"
+      - "ha-db-config:/etc/mysql/"
+      - "ha-db-mysqld:/var/run/mysqld"
+```
+5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+```
+  ha-db-data:
+  ha-db-config:
+  ha-db-mysqld:
+```
+6. In the `/srv` directory:
+   - Pull the docker image first with `sudo docker-compose pull`.
+   - Build, create, start, and attach the MariaDB-container with `sudo docker-compose up -d` (dependent on previous state, you may want to add `--force-recreate`. The output should look like the following:
+   ```shell
+   Creating volume "srv_ha-db-data" with default driver
+   Creating volume "srv_ha-db-config" with default driver
+   Creating volume "srv_ha-db-mysqld" with default driver
+   Creating ha-db ... done
+   ```
+   - Verify that the container is running with `sudo docker ps`. The output should look like the following:
+   ```shell
+   CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS                  PORTS      NAMES
+   5edd4cc80759   mariadb:latest   "docker-entrypoint.s…"   6 seconds ago   Up Less than a second   3306/tcp   ha-db
    ```
