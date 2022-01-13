@@ -8,17 +8,18 @@ Therefore we have gone for a two-server setup according to below.
 
 ## Conceptual design
 
-Instead of one RPI server we will have two.
+Instead of one RPI server we will have two:
+- homeassistant on VLAN-Server (192.168.3.20):
+  - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
+    - MariaDB.
+    - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
 - server1 on VLAN-Server (192.168.3.30):
    - RPI 4 with 500GB SSD disk. Standard RPI, with docker and the following services:
      - InfluxDB.
      - Grafana.
    - Intended also to be utilized for other projects.
    - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
-  - homeassistant on VLAN-Server (192.168.3.20):
-    - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
-      - MariaDB.
-    - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
+
 
 ## Governing principles
 
