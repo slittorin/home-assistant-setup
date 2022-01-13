@@ -23,12 +23,7 @@ Instead of one RPI server we will have two:
 
 ## Governing principles
 
-- Store all config/data under `/srv`.
-- For docker:
-  - Official docker images only.
-  - With volumes for data/config, and only where required bind-mounts.
-  - Use `docker cp`, `docker save` or similar to copy/backup data.
-- If not otherwise stated, the user `pi` performs all actions.
+- Limit the number of exposed ports/services on the Home Assistant.
 
 ## Server - server 1
 
@@ -165,14 +160,27 @@ HA_GRAFANA_HOSTNAME=localhost
 1. Through a web-browser logon as administrator to the installed Home Assistant.
 2. Click on the name of the logged in user at the lower left corner:
    - Enable `Advanced mode`.
-4. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons:
-   - `File Editor`
+4. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons (always set start on boot, watchdog to restart and update automatically):
+   - `File Editor`:
      - We want to be able to edit files in the web-browser.
-   - `Terminal & SSH`
+   - `Terminal & SSH`:
      - We want to be able to logon with ssh (logon-user is `root`).
      - Configure the add-on:
-       - Set `Option` and `password` to a password.
+       - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
+       - Set `Network` to 22.
      - Restart the add-on.
+   - `MariaDB`:
+     - Configure the add-on:
+       - Set `Option` and `password` to a password specific for the database.
+       - We do not set any port as we do not want the database to be exposed outside the host.
+5. Complete the MariaDB installation with:
+   - Through the `File Editor` add-on, edit the file `File Editor` and add (change the string 'password' below to the right password:
+     ```recorder:
+        db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
+     ```
+   - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
+     - The output should state 'Configuration valid'. If not, change the recorder config above.
+     - 
 
 
 
