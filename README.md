@@ -180,8 +180,8 @@ HA_GRAFANA_HOSTNAME=localhost
      ```
    - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
      - The output should state 'Configuration valid'. If not, change the recorder config above.
-     - 
-
+     - On the same page press `Restart` under `Server management`.
+     - Once restarted go to `History` and if data is there, the MariaDB add-on is correctly configured.
 
 
 
