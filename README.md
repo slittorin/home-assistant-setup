@@ -159,11 +159,25 @@ HA_GRAFANA_HOSTNAME=localhost
    304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
 
-## Server - homeassistant
+## Home Assistant
 
-To be able to utilize most features of HA, such as Add-Ons, we install HA Supervised method instead.
-The below is derived from [Install Home Assistant Supervised](https://peyanski.com/how-to-install-home-assistant-supervised-official-way/).
-HA will state that we are running an unsupported installation.
+1. Through a web-browser logon as administrator to the installed Home Assistant.
+2. Click on the name of the logged in user at the lower left corner:
+   - Enable `Advanced mode`.
+4. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons:
+   - `File Editor`
+     - We want to be able to edit files in the web-browser.
+   - `Terminal & SSH`
+     - We want to be able to logon with ssh (logon-user is `root`).
+     - Configure the add-on:
+       - Set `Option` and `password` to a password.
+     - Restart the add-on.
+
+
+
+
+
+
 
 1. Add necessary packages with `sudo apt-get install jq wget curl avahi-daemon udisks2 libglib2.0-bin network-manager dbus apparmor -y`.
 2. Create the directory `/srv/ha`, and the following sub-directories:
