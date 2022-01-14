@@ -9,7 +9,8 @@ Therefore we have gone for a two-server setup according to below.
 # Table of content
 
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
-- [
+- [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
+- [Setup for Server 1](
 
 
 ## Conceptual design
@@ -31,7 +32,7 @@ Instead of one RPI server we will have two:
 
 - Limit the number of exposed ports/services on the Home Assistant.
 
-# Setup for - server 1
+# Setup for Server 1
 
 ## Preparation
 
