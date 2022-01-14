@@ -6,7 +6,7 @@ We could also utilize one server with HASS.io and addons for MariaDB, InfluxDB a
 
 Therefore we have gone for a two-server setup according to below.
 
-# Table of content
+## Table of content
 
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
@@ -16,7 +16,7 @@ Therefore we have gone for a two-server setup according to below.
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
 - [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
-  - [Setup MariaDB]()
+  - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
 
 ## Conceptual design
 
