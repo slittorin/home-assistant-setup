@@ -202,6 +202,15 @@ HA_GRAFANA_HOSTNAME=localhost
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
+3. We setup logging to log warning and above.
+   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
+     ```
+     logger:
+       default: warning
+     ```
+   - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
+     - The output should state 'Configuration valid'. If not, change the recorder config above.
+     - On the same page press `Restart` under `Server management`.
 4. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
@@ -211,18 +220,6 @@ HA_GRAFANA_HOSTNAME=localhost
    - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
      - The output should state 'Configuration valid'. If not, change the recorder config above.
      - On the same page press `Restart` under `Server management`.
-
-
-
-
-
-1. Add necessary packages with `sudo apt-get install jq wget curl avahi-daemon udisks2 libglib2.0-bin network-manager dbus apparmor -y`.
-2. Create the directory `/srv/ha`, and the following sub-directories:
-   - `downloads'. To store downloaded packages.
-3. Isolate the latest HA Agent from [Home Assistant Agent - Download](https://github.com/home-assistant/os-agent/releases/latest).
-   - At 20220207 it is 1.2.2.
-4. Go to directory '/srv/ha/downloads' and download the right HA Agent package with 'sudo wget https://github.com/home-assistant/os-agent/releases/download/1.2.2/os-agent_1.2.2_linux_aarch64.deb' (change the version according step 3).
-   - As we are using 64 bit version for RPI 4, we need to download this version, not armv7 that would otherwise work for 32 bit version.
 
 # Deprecated - Not valid
 
