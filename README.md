@@ -189,7 +189,6 @@ For all changes to Home Assistant configuration files, you usually need to resta
      recorder:
        db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
      ```
-
 ## General setup
 
 1. Through a web-browser logon as administrator to the installed Home Assistant.
@@ -204,19 +203,21 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
-3. We setup logging to log warning and above.
+4. We setup logging to log warning and above.
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
      ```
      logger:
        default: warning
      ```
-4. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
+5. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
        purge_keep_days: 30
        commit_interval: 10
      ```
-
+6. Add areas that is representative for your home.
+   - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
+     
 # Deprecated - Not valid
 
 ## Installation for Home Assistant - Deprecated as of 20220207 - We cannot use all features we need with this type of installation.
