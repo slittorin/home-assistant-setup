@@ -170,6 +170,12 @@ HA_GRAFANA_HOSTNAME=localhost
 
 # Setup for Home Assistant.
 
+For all changes to Home Assistant configuration files, you usually need to restart:
+-  Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
+   - The output should state 'Configuration valid'. If not, change the recorder config above.
+   - On the same page press `Restart` under `Server management`.
+- Any warnings or errors can be found in the file `/config/home-assistant.log`.
+
 ## Setup MariaDB
 
 1. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons (always set start on boot, watchdog to restart and update automatically):
@@ -183,10 +189,6 @@ HA_GRAFANA_HOSTNAME=localhost
      recorder:
        db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
      ```
-   - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
-     - The output should state 'Configuration valid'. If not, change the recorder config above.
-     - On the same page press `Restart` under `Server management`.
-     - Once restarted go to `History` and if data is there, the MariaDB add-on is correctly configured.
 
 ## General setup
 
@@ -208,18 +210,12 @@ HA_GRAFANA_HOSTNAME=localhost
      logger:
        default: warning
      ```
-   - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
-     - The output should state 'Configuration valid'. If not, change the recorder config above.
-     - On the same page press `Restart` under `Server management`.
 4. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
        purge_keep_days: 30
        commit_interval: 10
      ```
-   - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
-     - The output should state 'Configuration valid'. If not, change the recorder config above.
-     - On the same page press `Restart` under `Server management`.
 
 # Deprecated - Not valid
 
