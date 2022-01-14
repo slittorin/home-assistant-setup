@@ -211,8 +211,9 @@ HA_GRAFANA_HOSTNAME=localhost
        - We do not set any port as we do not want the database to be exposed outside the host.
 2. Complete the MariaDB installation with:
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add (change the string 'password' below to the right password:
-     ```recorder:
-        db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
+     ```
+     recorder:
+       db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
      ```
    - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
      - The output should state 'Configuration valid'. If not, change the recorder config above.
