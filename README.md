@@ -178,7 +178,7 @@ HA_GRAFANA_HOSTNAME=localhost
        - Set `Option` and `password` to a password specific for the database.
        - We do not set any port as we do not want the database to be exposed outside the host.
 2. Complete the MariaDB installation with:
-   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add (change the string 'password' below to the right password:
+   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add (change the string 'password' below to the right password):
      ```
      recorder:
        db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
@@ -203,10 +203,10 @@ HA_GRAFANA_HOSTNAME=localhost
        - Set `Network` to 22.
      - Restart the add-on.
 4. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
-   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder` (change the string 'password' below to the right password:
-     ```recorder:
-            purge_keep_days: 30
-            commit_interval: 10
+   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
+     ```
+       purge_keep_days: 30
+       commit_interval: 10
      ```
    - Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
      - The output should state 'Configuration valid'. If not, change the recorder config above.
