@@ -14,15 +14,9 @@ Therefore we have gone for a two-server setup according to below.
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
-  - []()
-  - []()
-  - []()
-- []()
-  - []()
-  - []()
-  - []()
-  - []()
-
+- [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
+  - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
+  - [Setup MariaDB]()
 
 ## Conceptual design
 
