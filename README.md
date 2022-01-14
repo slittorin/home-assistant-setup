@@ -8,8 +8,8 @@ Therefore we have gone for a two-server setup according to below.
 
 ## Table of content
 
-- [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
+- [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
@@ -17,6 +17,12 @@ Therefore we have gone for a two-server setup according to below.
 - [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
   - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
+
+## Governing principles
+
+- Limit the number of exposed ports/services on the Home Assistant.
+- Allow 30 days of data to reside within the Home Assistant database before it is put into the history database.
+  - We have a rather good setup that should cope with the load, with the current number of sensors/integrations.
 
 ## Conceptual design
 
@@ -31,12 +37,6 @@ Instead of one RPI server we will have two:
      - Grafana.
    - Intended also to be utilized for other projects.
    - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
-
-## Governing principles
-
-- Limit the number of exposed ports/services on the Home Assistant.
-- Allow 30 days of data to reside within the Home Assistant database before it is put into the history database.
-  - We have a rather good setup that should cope with the load, with the current number of sensors/integrations.
 
 # Setup for Server 1
 
