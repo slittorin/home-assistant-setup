@@ -183,14 +183,15 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - Configure the add-on:
        - Set `Option` and `password` to a password specific for the database.
        - We do not set any port as we do not want the database to be exposed outside the host.
-2. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add (change the string 'password' below to the right password):
+2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'password' below to the right password):
    `recorder_db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4`
-3. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'password' below to the right password):
+3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
    ```
    recorder:
      db_url: !secret recorder_db_url
    ```
-4. Verify that the setup is working correct by looking in the Home Assistant logfile.
+4. Verify the config-file and restart.
+5. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
 ## General setup
 
@@ -220,6 +221,8 @@ For all changes to Home Assistant configuration files, you usually need to resta
      ```
 6. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
+7. Verify the config-file and restart.
+8. Verify that the setup is working correct by looking in the Home Assistant logfile.
      
 # Deprecated - Not valid
 
