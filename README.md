@@ -17,6 +17,7 @@ Therefore we have gone for a two-server setup according to below.
 - [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
   - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
+  - [History DB setup](https://github.com/slittorin/home-assistant-setup#history-db-setup)
 
 ## Governing principles
 
