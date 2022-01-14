@@ -10,7 +10,18 @@ Therefore we have gone for a two-server setup according to below.
 
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
-- [Setup for Server 1](
+- [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
+  - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
+  - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
+  - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
+  - []()
+  - []()
+  - []()
+- []()
+  - []()
+  - []()
+  - []()
+  - []()
 
 
 ## Conceptual design
@@ -162,14 +173,26 @@ HA_GRAFANA_HOSTNAME=localhost
    304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
 
-# Home Assistant
+# Setup for Home Assistant.
 
-## Setup Home Assistant.
+## General setup
 
 1. Through a web-browser logon as administrator to the installed Home Assistant.
 2. Click on the name of the logged in user at the lower left corner:
    - Enable `Advanced mode`.
 4. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons (always set start on boot, watchdog to restart and update automatically):
+   - `File Editor`:
+     - We want to be able to edit files in the web-browser.
+   - `Terminal & SSH`:
+     - We want to be able to logon with ssh (logon-user is `root`).
+     - Configure the add-on:
+       - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
+       - Set `Network` to 22.
+     - Restart the add-on.
+
+## Setup MariaDB
+
+1. Go to `Configuration` -> `Add-ons, Backups & Supervisor` -> Click on the `Add-on store` at the lower right corner, and install the following add-ons (always set start on boot, watchdog to restart and update automatically):
    - `File Editor`:
      - We want to be able to edit files in the web-browser.
    - `Terminal & SSH`:
@@ -191,8 +214,6 @@ HA_GRAFANA_HOSTNAME=localhost
      - The output should state 'Configuration valid'. If not, change the recorder config above.
      - On the same page press `Restart` under `Server management`.
      - Once restarted go to `History` and if data is there, the MariaDB add-on is correctly configured.
-
-
 
 
 
