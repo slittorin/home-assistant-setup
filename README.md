@@ -224,6 +224,30 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
 7. Verify the config-file and restart.
 8. Verify that the setup is working correct by looking in the Home Assistant logfile.
+
+## History DB setup
+
+1. In a web browser go the IP address (or hostname) of server 1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
+   - Login with the username and password setup above.
+   - Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
+     - Set a descriptive name: `Read/Write to HA bucket`
+     - Choose bucket `ha` for both read and write.
+   - Choose the newly created token and copy the token.
+2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'token' below to the right token):
+   `history_db_token: token`
+3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
+   ```
+   influxdb:
+     api_version: 2
+     ssl: false
+     host: 192.168.1.30
+     port: 8086
+     organization: lite
+     bucket: ha
+     token: !secret history_db_token
+     max_retries: 3
+   ```
+4. 
      
 # Deprecated - Not valid
 
