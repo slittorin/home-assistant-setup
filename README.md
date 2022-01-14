@@ -79,7 +79,7 @@ HA_HISTORY_DB_BUCKET=ha
 # We run in host mode to be able to be connected from HA.
     ports:
       - "8086:8086"
-    restart: on-failure
+    restart: always
     env_file:
       - .env
     environment:
@@ -111,6 +111,7 @@ HA_HISTORY_DB_BUCKET=ha
    CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                    NAMES
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    ```
+   - Ensure that the docker-compose service starts after host reboot with `sudo systemctl enable docker`
 
 ## Installation for Grafana
 
@@ -134,7 +135,7 @@ HA_GRAFANA_HOSTNAME=localhost
 # We run in host mode to be able to be connected from HA.
     ports:
       - "3000:3000"
-    restart: on-failure
+    restart: always
     env_file:
       - .env
     environment:
