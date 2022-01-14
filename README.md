@@ -23,6 +23,7 @@ Therefore we have gone for a two-server setup according to below.
 - Limit the number of exposed ports/services on the Home Assistant.
 - Allow 30 days of data to reside within the Home Assistant database before it is put into the history database.
   - We have a rather good setup that should cope with the load, with the current number of sensors/integrations.
+- Keep all data forever in the history database (InfluxDB). By default the retention is set to 'Forever' in InfluxDB.
 
 ## Conceptual design
 
