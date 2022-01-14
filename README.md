@@ -6,6 +6,12 @@ We could also utilize one server with HASS.io and addons for MariaDB, InfluxDB a
 
 Therefore we have gone for a two-server setup according to below.
 
+# Table of content
+
+- [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
+- [
+
+
 ## Conceptual design
 
 Instead of one RPI server we will have two:
@@ -25,9 +31,9 @@ Instead of one RPI server we will have two:
 
 - Limit the number of exposed ports/services on the Home Assistant.
 
-## Server - server 1
+# Setup for - server 1
 
-### Preparation
+## Preparation
 
 1. Under `/srv`:
    - Create the file `.env`.
@@ -40,7 +46,7 @@ Instead of one RPI server we will have two:
      volumes:
      ```
 
-### Installation for InfluxDB
+## Installation for InfluxDB
 
 1. Check versions of available docker images for InfluxDB at [Docker - InfluxDB](https://hub.docker.com/_/influxdb).
    - If you do not want the 'latest' version, use version number.
@@ -99,7 +105,7 @@ HA_HISTORY_DB_BUCKET=ha
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    ```
 
-### Installation for Grafana
+## Installation for Grafana
 
 1. Check versions of available docker images for Grafana at [Docker - Grafana](https://hub.docker.com/r/grafana/grafana).
    - If you do not want the 'latest' version, use version number, or use 'main'.
@@ -155,7 +161,9 @@ HA_GRAFANA_HOSTNAME=localhost
    304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
 
-## Home Assistant
+# Home Assistant
+
+## Setup Home Assistant.
 
 1. Through a web-browser logon as administrator to the installed Home Assistant.
 2. Click on the name of the logged in user at the lower left corner:
