@@ -209,22 +209,31 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
-4. We setup logging to log warning and above.
+4. For readability, as will have lots of configuration data, we create separate yaml-files to no
+   - With `File Editor` add the following files in directory `/config`:
+     - `sensors.yaml`
+     - `templates.yaml`
+5. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
+     ```
+     sensor: !include sensors.yaml
+     template: !include templates.yaml
+     ```
+6. We setup logging to log warning and above.
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
      ```
      logger:
        default: warning
      ```
-5. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
+7. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
        purge_keep_days: 30
        commit_interval: 10
      ```
-6. Add areas that is representative for your home.
+8. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
-7. Verify the config-file and restart.
-8. Verify that the setup is working correct by looking in the Home Assistant logfile.
+9. Verify the config-file and restart.
+10. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
 ## History DB setup
 
