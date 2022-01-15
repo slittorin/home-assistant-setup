@@ -209,7 +209,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
-4. For readability, as will have lots of configuration data, we create separate yaml-files to no
+4. For readability, as will have lots of configuration data, we create separate yaml-files:
    - With `File Editor` add the following files in directory `/config`:
      - `sensors.yaml`
      - `templates.yaml`
