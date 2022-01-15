@@ -216,7 +216,6 @@ For all changes to Home Assistant configuration files, you usually need to resta
 5. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
      ```
      sensor: !include sensors.yaml
-     template: !include templates.yaml
      ```
 6. We setup logging to log warning and above.
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
