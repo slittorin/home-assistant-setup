@@ -233,6 +233,8 @@ For all changes to Home Assistant configuration files, you usually need to resta
      ```
        purge_keep_days: 30
        commit_interval: 10
+       
+     logbook:
      ```
 9. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
@@ -241,7 +243,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
 
 ## History DB setup
 
-1. In a web browser go the IP address (or hostname) of server 1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
+1. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Login with the username and password setup above.
    - Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
      - Set a descriptive name: `Read/Write to HA bucket`
@@ -250,18 +252,31 @@ For all changes to Home Assistant configuration files, you usually need to resta
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'token' below to the right token):
    `history_db_token: token`
 3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
-   ```
-   influxdb:
-     api_version: 2
-     ssl: false
-     host: 192.168.1.30
-     port: 8086
-     organization: lite
-     bucket: ha
-     token: !secret history_db_token
-     max_retries: 3
-   ```
-4. 
+```
+
+history:
+  exclude:
+    domains:
+      # Updater: Is not required in history data.
+      - updater
+    entity_globs:
+      # We do not include any of the test_-sensors.
+      - binary_sensor.test_*
+      - sensor.test_*
+
+influxdb:
+  api_version: 2
+  ssl: false
+  host: 192.168.1.30
+  port: 8086
+  organization: lite
+  bucket: ha
+  token: !secret history_db_token
+  max_retries: 3
+```
+4. Verify that data is written to the InfluxDB_bucket with:
+   - In web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
+     - 
      
 # Deprecated - Not valid
 
