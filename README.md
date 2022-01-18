@@ -219,7 +219,9 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Network` to 22.
      - Restart the add-on.
 4. For readability, as will have lots of configuration data, we create separate yaml-files:
-   - With `File Editor` create the following directory `/config/packages`:
+   - With `File Editor` create the following directories:
+     - `/config/packages`.
+     - `/config/custom_components`.
    - With `File Editor` add the following files in directory `/config`:
      - `sensors.yaml`
 5. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
