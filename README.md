@@ -8,7 +8,7 @@ Therefore we have gone for a two-server setup according to below.
 
 ## Table of content
 
-- [Generic information](https://github.com/slittorin/home-assistant-setup#governing-principles)
+- [Generic information](https://github.com/slittorin/home-assistant-setup#generic-information)
 - [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
