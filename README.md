@@ -267,7 +267,7 @@ history:
 influxdb:
   api_version: 2
   ssl: false
-  host: 192.168.1.30
+  host: 192.168.2.30
   port: 8086
   organization: lite
   bucket: ha
