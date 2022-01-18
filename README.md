@@ -8,6 +8,7 @@ Therefore we have gone for a two-server setup according to below.
 
 ## Table of content
 
+- [Generic information](https://github.com/slittorin/home-assistant-setup#governing-principles)
 - [Governing principles](https://github.com/slittorin/home-assistant-setup#governing-principles)
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
@@ -18,6 +19,14 @@ Therefore we have gone for a two-server setup according to below.
   - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
   - [History DB setup](https://github.com/slittorin/home-assistant-setup#history-db-setup)
+
+## Generic information
+
+For all changes to Home Assistant configuration files, you usually need to restart:
+-  Goto `Configuration` -> `Settings` -> `Server Controls` and press `Check Configuration`.
+   - The output should state 'Configuration valid'. If not, change the recorder config above.
+   - On the same page press `Restart` under `Server management`.
+- Any warnings or errors can be found in the file `/config/home-assistant.log`.
 
 ## Governing principles
 
