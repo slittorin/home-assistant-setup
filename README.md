@@ -218,28 +218,31 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
-4. For readability, as will have lots of configuration data, we create separate yaml-files:
+4. We enable to add resources to lovelace:
+   - With `File Editor` create the following directories:
+     - `/config/www`.
+5. For readability, as will have lots of configuration data, we create separate yaml-files:
    - With `File Editor` create the following directories:
      - `/config/packages`.
      - `/config/custom_components`.
    - With `File Editor` add the following files in directory `/config`:
      - `sensors.yaml`
-5. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
+6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
      ```
      homeassistant:
        packages:
      ```
-6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
+7. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
      ```
      sensor: !include sensors.yaml
      ```
-7. We setup logging to log warning and above.
+8. We setup logging to log warning and above.
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
      ```
      logger:
        default: warning
      ```
-8. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
+9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
        purge_keep_days: 30
@@ -247,10 +250,10 @@ For all changes to Home Assistant configuration files, you usually need to resta
        
      logbook:
      ```
-9. Add areas that is representative for your home.
+10. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
-10. Verify the config-file and restart.
-11. Verify that the setup is working correct by looking in the Home Assistant logfile.
+11. Verify the config-file and restart.
+12. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
 ## History DB setup
 
