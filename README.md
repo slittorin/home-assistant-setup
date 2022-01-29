@@ -41,6 +41,11 @@ Instead of one RPI server we will have two:
 - homeassistant on VLAN-Server (192.168.3.20):
   - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
     - MariaDB.
+      - The data is stored in the following tables:
+        - `states` according to purge period.
+        - `statistics` and `statistics_short_term` tables:
+          - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
+          - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
     - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
 - server1 on VLAN-Server (192.168.3.30):
    - RPI 4 with 500GB SSD disk. Standard RPI, with docker and the following services:
@@ -242,7 +247,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
      logger:
        default: warning
      ```
-9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card).
+9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card), and ensure that logbook is enabled:
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
      ```
        purge_keep_days: 30
