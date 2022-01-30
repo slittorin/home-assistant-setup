@@ -75,7 +75,7 @@ Instead of one RPI server we will have two:
    - If you do not want the 'latest' version, use version number.
    - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb` and looking for 'INFLUXDB_VERSION').
 2. Create the directory `/srv/ha-history-db`, and the following sub-directories:
-   - At present no specific directories are used.
+   - `backup`.
 4. For the file `/srv/.env` add the following content:
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
@@ -107,6 +107,7 @@ HA_HISTORY_DB_BUCKET=ha
     volumes:
       - "ha-history-db-data:/var/lib/influxdb"
       - "ha-history-db-config:/etc/influxdb"
+      - "/srv/ha-history-db/backup:/backup"
 ```
 5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
 ```
