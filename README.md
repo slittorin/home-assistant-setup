@@ -38,7 +38,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
 #### Database retention and history
 
 - Allow 30 days of data to reside within the Home Assistant database (MariaDB) before it is put into the history database.
-  - We have a rather good setup that should cope with the load, with the current number of sensors/integrations.
+  - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
   - Purge is set on recorder.
   - For history (not InfluxDB):
     - The data is stored in the following tables:
