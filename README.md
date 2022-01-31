@@ -47,7 +47,7 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
   - Purge is set on recorder.
 - For history (in MariaDB, not InfluxDB):
   - The data is stored in the following tables:
-    - `statistics` and `statistics_short_term` tables:
+    - `statistics` and `statistics_short_term`:
       - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
       - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
 - Keep all data forever in the history database (InfluxDB).
