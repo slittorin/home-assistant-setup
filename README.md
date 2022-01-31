@@ -106,6 +106,7 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
 HA_HISTORY_DB_HOSTNAME=localhost
 HA_HISTORY_DB_ROOT_USER=admin
 HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
+HA_HISTORU_DB_ROOT_TOKEN=[not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
@@ -153,6 +154,84 @@ HA_HISTORY_DB_BUCKET=ha
    CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                    NAMES
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    ```
+7. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose ls(remember to set `chmod ugo+x`).
+```bash
+#!/bin/bash
+
+# Inspired by: https://gist.github.com/mihow/9c7f559807069a03e302605691f85572
+#
+# Purpose:
+# This script backs up full influx according to:
+# - Daily snapshots, keep for 7 days (monday through saturday).
+# - Weekly snapshots (sunday), keep for 8 weeks.
+#
+# Usage:
+# ./backup-influxdb.sh
+
+# Load environment variables (mainly secrets).
+if [ -f "/srv/.env" ]; then
+    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
+fi
+
+# Variables:
+day_of_week=$(date +%u)
+container="ha-history-db"
+influxdb_logfile="/srv/ha-history-db/backup-influxdb.log"
+influxdb_backup_root="/srv/ha-history-db/backup/backup.tmp"
+influxdb_backup_container_root="/backup/backup.tmp"
+influxdb_backup_dest="/srv/ha-history-db/backup/"
+day_of_week=$(date +%u)
+
+# Set name and retention according day of week.
+# Default is daily backup
+influxdb_backup_pre="influxdb-backup-daily"
+retention_days=7
+if [[ "$day_of_week" == 7 ]]; then # On sundays.
+    influxdb_backup_pre="influxdb-backup-weekly"
+    retention_days=56 # 8 weeks.
+fi
+influxdb_backup_filename="${influxdb_backup_pre}-$(date +%Y%m%d_%H%M%S)"
+
+_initialize() {
+    echo ""
+    echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB Backup."
+
+    touch "${influxdb_logfile}"
+    rm -r "${influxdb_backup_root}/"
+    mkdir "${influxdb_backup_root}"
+}
+
+_influxdb_backup() {
+    echo "$(date +%Y%m%d_%H%M%S): Backing up..."
+    docker-compose exec "${container}" influx backup "${influxdb_backup_container_root}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"
+
+    echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
+    tar_file="${influxdb_backup_dest}${influxdb_backup_filename}.tar"
+    tar -cvf "${tar_file}" "${influxdb_backup_root}/"
+    echo "$(date +%Y%m%d_%H%M%S): Compressed backup to: ${tar_file}"
+
+    echo "$(date +%Y%m%d_%H%M%S): Backup done."
+}
+
+_influxdb_cleanup() {
+    find "${influxdb_backup_dest}" -name "${influxdb_backup_pre}-*" -mtime +${retention_days} -delete
+    echo "$(date +%Y%m%d_%H%M%S): Done retention cleanup to ${retention_days} days for filenames starting with ${influxdb_backup_pre}-"
+}
+
+_finalize() {
+    echo "$(date +%Y%m%d_%H%M%S): Finished InfluxDB Backup."
+    exit 0
+}
+
+# Main
+_initialize >> "${influxdb_logfile}" 2>&1
+_influxdb_backup >> "${influxdb_logfile}" 2>&1
+_influxdb_cleanup >> "${influxdb_logfile}" 2>&1
+_finalize >> "${influxdb_logfile}" 2>&1
+```
+8. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
+9. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
+10. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
