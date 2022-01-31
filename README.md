@@ -35,6 +35,11 @@ For all changes to Home Assistant configuration files, you usually need to resta
 - Keep to standard setup/config as much as possible.
 - Limit the number of exposed ports/services on the Home Assistant.
 
+#### History data
+
+As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics) Home Assistant seems to be on the way to store and manage historical data, but is not yet there, including to graphically present historical data that extends the purge period for the database.
+Therefore we also add InfluxDB (to capture states) and Grafana to present historical data.
+
 #### Database retention and history
 
 - Allow 30 days of data to reside within the Home Assistant database (MariaDB) before it is put into the history database.
@@ -42,7 +47,6 @@ For all changes to Home Assistant configuration files, you usually need to resta
   - Purge is set on recorder.
   - For history (not InfluxDB):
     - The data is stored in the following tables:
-      - `states` according to purge period.
       - `statistics` and `statistics_short_term` tables:
         - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
         - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
@@ -60,12 +64,10 @@ For all changes to Home Assistant configuration files, you usually need to resta
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days.
   - Weekly snapshots, keep for 8 weeks.
+- Files from the above are moved to my NAS for storage (old files deleted).
 
 ## Conceptual design
 
-No High Availability setup, but we split the services between two RPI.
-
-Instead of one RPI server we will have two:
 - homeassistant on VLAN-Server (192.168.3.20):
   - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
     - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
