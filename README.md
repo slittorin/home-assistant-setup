@@ -108,7 +108,7 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
 HA_HISTORY_DB_HOSTNAME=localhost
 HA_HISTORY_DB_ROOT_USER=admin
 HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
-HA_HISTORYDB_ROOT_TOKEN=[not shown here]
+HA_HISTORY_DB_ROOT_TOKEN=[not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
