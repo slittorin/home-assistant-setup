@@ -158,7 +158,7 @@ HA_HISTORY_DB_BUCKET=ha
    ```
 7. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
-8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose ls(remember to set `chmod ugo+x`).
+8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
