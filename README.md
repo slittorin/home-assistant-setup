@@ -193,10 +193,11 @@ fi
 influxdb_backup_filename="${influxdb_backup_pre}-$(date +%Y%m%d_%H%M%S)"
 
 _initialize() {
+    touch "${influxdb_logfile}"
+    
     echo ""
     echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB Backup."
 
-    touch "${influxdb_logfile}"
     rm -r "${influxdb_backup_root}/"
     mkdir "${influxdb_backup_root}"
 }
