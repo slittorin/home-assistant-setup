@@ -57,14 +57,14 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
 
 - [GitHub Repository home-assistant-config](https://github.com/slittorin/home-assistant-config) is utilized for configuration files (push, on demand).
 - Backup Home Assistant with snapshots (includes MariaDB database) according:
-  - Daily snapshots, keep for 7 days.
-  - Weekly snapshots, keep for 8 weeks.
+  - Daily snapshots, keep for 7 days (monday through saturday).
+  - Weekly snapshots (sunday), keep for 8 weeks.
 - We backup MariaDB separately according:
-  - Daily snapshots, keep for 7 days.
-  - Weekly snapshots, keep for 8 weeks.
+  - Daily snapshots, keep for 7 days (monday through saturday).
+  - Weekly snapshots (sunday), keep for 8 weeks.
 - We backup history database (InfluxDB) according:
-  - Daily snapshots, keep for 7 days.
-  - Weekly snapshots, keep for 8 weeks.
+  - Daily snapshots, keep for 7 days (monday through saturday).
+  - Weekly snapshots (sunday), keep for 8 weeks.
 - Files from the above are moved to my NAS for storage (old files deleted).
 
 ## Conceptual design
