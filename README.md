@@ -30,22 +30,44 @@ For all changes to Home Assistant configuration files, you usually need to resta
 
 ## Governing principles
 
+#### Generic
+
+- Keep to standard setup/config as much as possible.
 - Limit the number of exposed ports/services on the Home Assistant.
-- Allow 30 days of data to reside within the Home Assistant database before it is put into the history database.
+
+#### Database retention and history
+
+- Allow 30 days of data to reside within the Home Assistant database (MariaDB) before it is put into the history database.
   - We have a rather good setup that should cope with the load, with the current number of sensors/integrations.
-- Keep all data forever in the history database (InfluxDB). By default the retention is set to 'Forever' in InfluxDB.
+  - Purge is set on recorder.
+  - For history (not InfluxDB):
+    - The data is stored in the following tables:
+      - `states` according to purge period.
+      - `statistics` and `statistics_short_term` tables:
+        - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
+        - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
+  - Keep all data forever in the history database (InfluxDB).
+  - By default the retention is set to 'Forever' in InfluxDB.
+
+#### Backup
+
+- Backup Home Assistant with snapshots (includes MariaDB database) according:
+  - Daily snapshots, keep for 7 days.
+  - Weekly snapshots, keep for 8 weeks.
+- We backup MariaDB separately according:
+  - Daily snapshots, keep for 7 days.
+  - Weekly snapshots, keep for 8 weeks.
+- We backup history database (InfluxDB) according:
+  - Daily snapshots, keep for 7 days.
+  - Weekly snapshots, keep for 8 weeks.
 
 ## Conceptual design
+
+No High Availability setup, but we split the services between two RPI.
 
 Instead of one RPI server we will have two:
 - homeassistant on VLAN-Server (192.168.3.20):
   - RPI 4 with 250GB SSD disk. Standard HASS.io install, with the following addons:
-    - MariaDB.
-      - The data is stored in the following tables:
-        - `states` according to purge period.
-        - `statistics` and `statistics_short_term` tables:
-          - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
-          - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
     - Setup a RHASS.io with [HASS.io install](https://github.com/slittorin/hass-io-install).
 - server1 on VLAN-Server (192.168.3.30):
    - RPI 4 with 500GB SSD disk. Standard RPI, with docker and the following services:
