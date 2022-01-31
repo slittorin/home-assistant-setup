@@ -45,13 +45,13 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
 - Allow 30 days of data to reside within the Home Assistant database (MariaDB) before it is put into the history database.
   - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
   - Purge is set on recorder.
-  - For history (not InfluxDB):
-    - The data is stored in the following tables:
-      - `statistics` and `statistics_short_term` tables:
-        - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
-        - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
-  - Keep all data forever in the history database (InfluxDB).
-    - By default the retention is set to 'Forever' in InfluxDB.
+- For history (in MariaDB, not InfluxDB):
+  - The data is stored in the following tables:
+    - `statistics` and `statistics_short_term` tables:
+      - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
+      - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
+- Keep all data forever in the history database (InfluxDB).
+  - By default the retention is set to 'Forever' in InfluxDB.
 
 #### Backup
 
