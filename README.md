@@ -333,6 +333,11 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - Set `Option` and `password` to a password specific for ssh-login (yes, not preferred, one should use authorized key instead).
        - Set `Network` to 22.
      - Restart the add-on.
+   - `Samba share`:
+     - Click `Install` and then `Start`, where error will occur, press `Failed to start add-on - Configuration validation failed`:
+       - Set `password` in the config file.
+       - Leave the rest as it is.
+     - Press `Start`.
 4. We enable to add resources to lovelace:
    - With `File Editor` create the following directories:
      - `/config/www`.
