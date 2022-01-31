@@ -51,7 +51,7 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
         - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
         - Currently the data is not purged in these tables (not sure about `statistics_short_term` yet).
   - Keep all data forever in the history database (InfluxDB).
-  - By default the retention is set to 'Forever' in InfluxDB.
+    - By default the retention is set to 'Forever' in InfluxDB.
 
 #### Backup
 
