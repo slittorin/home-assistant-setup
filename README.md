@@ -346,6 +346,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - `/config/packages`.
      - `/config/custom_components`.
    - With `File Editor` add the following files in directory `/config`:
+     - `.env`
      - `sensors.yaml`
 6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
      ```
