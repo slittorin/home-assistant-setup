@@ -343,6 +343,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - `/config/www`.
 5. For readability, as will have lots of configuration data, we create separate yaml-files:
    - With `File Editor` create the following directories:
+     - `/config/logs`.
      - `/config/scripts`.
      - `/config/packages`.
      - `/config/custom_components`.
