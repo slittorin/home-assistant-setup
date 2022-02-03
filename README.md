@@ -311,7 +311,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - We do not set any port as we do not want the database to be exposed outside the host.
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'password' below to the right password):
    `recorder_db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4`
-3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
+3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
    ```yaml
    recorder:
      db_url: !secret recorder_db_url
@@ -350,7 +350,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - With `File Editor` add the following files in directory `/config`:
      - `.env`
      - `sensors.yaml`
-6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
+6. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add at the bottom of the file:
      `allowlist_external_dirs` is required to get sensor.file to get last line of log-files.
      ```yaml
      homeassistant:
@@ -358,18 +358,18 @@ For all changes to Home Assistant configuration files, you usually need to resta
          - '/config/logs'
        packages:
      ```
-7. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
+7. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add before the rows with `!include`:
      ```yaml
      sensor: !include sensors.yaml
      ```
 8. We setup logging to log warning and above.
-   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
+   - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
      ```yaml
      logger:
        default: warning
      ```
 9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card), and ensure that logbook is enabled:
-   - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
+   - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add after `recorder:`:
      ```yaml
        purge_keep_days: 30
        commit_interval: 10
@@ -390,8 +390,8 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - Choose bucket `ha` for both read and write.
    - Choose the newly created token and copy the token.
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'token' below to the right token):
-   `history_db_token: token`
-3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
+   `history_db_token: TOKEN`.
+3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
 ```yaml
 
 history:
