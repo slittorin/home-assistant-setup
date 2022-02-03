@@ -351,7 +351,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - `.env`
      - `sensors.yaml`
 6. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add at the bottom of the file:
-     `allowlist_external_dirs` is required to get sensor.file to get last line of log-files.
+     - `allowlist_external_dirs` is required to get sensor.file to get last line of log-files.
      ```yaml
      homeassistant:
        allowlist_external_dirs:
