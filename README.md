@@ -312,7 +312,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'password' below to the right password):
    `recorder_db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4`
 3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
-   ```
+   ```yaml
    recorder:
      db_url: !secret recorder_db_url
    ```
@@ -351,25 +351,26 @@ For all changes to Home Assistant configuration files, you usually need to resta
      - `.env`
      - `sensors.yaml`
 6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
-     ```
+     `allowlist_external_dirs` is required to get sensor.file to get last line of log-files.
+     ```yaml
      homeassistant:
        allowlist_external_dirs:
          - '/config/logs'
        packages:
      ```
 7. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
-     ```
+     ```yaml
      sensor: !include sensors.yaml
      ```
 8. We setup logging to log warning and above.
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
-     ```
+     ```yaml
      logger:
        default: warning
      ```
 9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card), and ensure that logbook is enabled:
    - Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add after `recorder:`:
-     ```
+     ```yaml
        purge_keep_days: 30
        commit_interval: 10
        
@@ -391,7 +392,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'token' below to the right token):
    `history_db_token: token`
 3. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add:
-```
+```yaml
 
 history:
   exclude:
