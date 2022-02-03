@@ -353,6 +353,8 @@ For all changes to Home Assistant configuration files, you usually need to resta
 6. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add at the bottom of the file:
      ```
      homeassistant:
+       allowlist_external_dirs:
+         - '/config/logs'
        packages:
      ```
 7. Through the `File Editor` add-on, edit the file `/config/configuration.yaml` and add before the rows with `!include`:
