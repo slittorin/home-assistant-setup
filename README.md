@@ -356,6 +356,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
      homeassistant:
        allowlist_external_dirs:
          - '/config/logs'
+       
        packages:
      ```
 7. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add before the rows with `!include`:
@@ -417,4 +418,4 @@ influxdb:
 4. Verify that data is written to the InfluxDB_bucket with:
    - In web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
      - Check that data is written to the ha-bucket.
-     - If not, chase the problem.
+     - If not, find the error and correct.
