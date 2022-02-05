@@ -344,7 +344,6 @@ For all changes to Home Assistant configuration files, you usually need to resta
 5. For readability, as will have lots of configuration data, we create separate yaml-files:
    - With `File Editor` create the following directories:
      - `/config/logs`.
-     - `/config/lovelace`.
      - `/config/scripts`.
      - `/config/packages`.
      - `/config/custom_components`.
@@ -377,16 +376,10 @@ For all changes to Home Assistant configuration files, you usually need to resta
        
      logbook:
      ```
-10. We want to run the Dashboard-setup in UI mode, but be able to add dashboards through yaml.
-    - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
-     ```yaml
-     lovelace:
-       mode: storage
-     ```
-11. Add areas that is representative for your home.
+10. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
-12. Verify the config-file and restart.
-13. Verify that the setup is working correct by looking in the Home Assistant logfile.
+11. Verify the config-file and restart.
+12. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
 ## History DB setup
 
