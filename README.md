@@ -372,9 +372,11 @@ For all changes to Home Assistant configuration files, you usually need to resta
 9. Setup Recorder correctly to keep data in database for 30 days, and write every 10:th second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card), and ensure that logbook is enabled:
    - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add after `recorder:`:
      ```yaml
-       purge_keep_days: 30
-       commit_interval: 10
-       
+         purge_keep_days: 30
+         purge_interval: 1
+         auto_purge: true
+         commit_interval: 10
+     
      logbook:
      ```
 10. Add areas that is representative for your home.
