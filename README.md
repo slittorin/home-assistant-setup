@@ -373,7 +373,6 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add after `recorder:`:
      ```yaml
          purge_keep_days: 30
-         purge_interval: 1
          auto_purge: true
          commit_interval: 10
      
