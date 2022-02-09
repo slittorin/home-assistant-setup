@@ -420,3 +420,22 @@ influxdb:
    - In web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
      - Check that data is written to the ha-bucket.
      - If not, find the error and correct.
+
+## HACS
+
+We want to be able to download more from Home Assistant Community Store (HACS).\
+HACS is an integration that needs to be installed according to [HACS site](https://hacs.xyz/).
+
+Follow the instructions for Supervisor install:
+1. Open `Terminal` and go to directory `/config`:
+   - Run the following command: `wget -O - https://get.hacs.xyz | bash -`.
+   - The installation should state that installation is complete, and that HA can be restarted.
+2. Restart the Home Assistant server under `Server management`.
+3. Clear your browser cache, yep, important!.
+4. Reconnect to HA.
+5. Add the integration 'HACS':
+   - Follow the instructions for [Configuration of HACS](https://hacs.xyz/docs/configuration/basic).
+     - In my case, I utilized my already existing github account to retrieve the token.
+6. On Integration page, click on `Configure` on the HACS integration:
+   - Enabled AppDaemon and NetDaemon apps.
+7. Restart the Home Assistant server under `Server management`.
