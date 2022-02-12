@@ -314,7 +314,10 @@ HA_GRAFANA_HOSTNAME=localhost
      - Set `URL`: `http://192.168.2.30:8086`.
      - Choose `Basic Auth` under `Auth` (yes, we should use a more secure way, such as token).
      - Check `Skip TLS Verify`.
-     - 
+     - Under `Basic Auth Details`:
+       - Set `User`: `grafana` and `Password` according to step 3 in the setup for Influx DB.
+     - Under `InfluxDB Details`:
+       - Set `Organization`: `lite`
 
 # Setup for Home Assistant.
 
