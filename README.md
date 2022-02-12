@@ -171,7 +171,7 @@ HA_HISTORY_DB_BUCKET=ha
 # - Weekly snapshots (sunday), keep for 8 weeks.
 #
 # Usage:
-# ./backup-influxdb.sh
+# ./influxdb-backup.sh
 
 # Load environment variables (mainly secrets).
 if [ -f "/srv/.env" ]; then
@@ -179,16 +179,17 @@ if [ -f "/srv/.env" ]; then
 fi
 
 # Variables:
-day_of_week=$(date +%u)
 container="ha-history-db"
-influxdb_logfile="/srv/ha-history-db/backup-influxdb.log"
-influxdb_backup_root="/srv/ha-history-db/backup/backup.tmp"
-influxdb_backup_container_root="/backup/backup.tmp"
-influxdb_backup_dest="/srv/ha-history-db/backup/"
-day_of_week=$(date +%u)
+base_dir="/srv"
+docker_compose_file="${base_dir}/docker-compose.yml"
+influxdb_logfile="${base_dir}/influxdb-backup.log"
+influxdb_backup_dir="${base_dir}/${container}/backup/backup.tmp"
+influxdb_backup_container_dir="/backup/backup.tmp"
+influxdb_backup_dest="${base_dir}/${container}/backup/"
 
 # Set name and retention according day of week.
-# Default is daily backup
+# Default is daily backup.
+day_of_week=$(date +%u)
 influxdb_backup_pre="influxdb-backup-daily"
 retention_days=7
 if [[ "$day_of_week" == 7 ]]; then # On sundays.
@@ -198,22 +199,23 @@ fi
 influxdb_backup_filename="${influxdb_backup_pre}-$(date +%Y%m%d_%H%M%S)"
 
 _initialize() {
+    cd "${base_dir}"
     touch "${influxdb_logfile}"
-    
+
     echo ""
     echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB Backup."
 
-    rm -r "${influxdb_backup_root}/"
-    mkdir "${influxdb_backup_root}"
+    rm -r "${influxdb_backup_dir}/"
+    mkdir "${influxdb_backup_dir}"
 }
 
 _influxdb_backup() {
     echo "$(date +%Y%m%d_%H%M%S): Backing up..."
-    docker-compose exec "${container}" influx backup "${influxdb_backup_container_root}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"
+    docker-compose -f "${docker_compose_file}" exec -T "${container}" influx backup "${influxdb_backup_container_dir}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"
 
     echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
     tar_file="${influxdb_backup_dest}${influxdb_backup_filename}.tar"
-    tar -cvf "${tar_file}" "${influxdb_backup_root}/"
+    tar -cvf "${tar_file}" "${influxdb_backup_dir}/"
     echo "$(date +%Y%m%d_%H%M%S): Compressed backup to: ${tar_file}"
 
     echo "$(date +%Y%m%d_%H%M%S): Backup done."
