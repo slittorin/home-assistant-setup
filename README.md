@@ -102,14 +102,17 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
    - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb` and looking for 'INFLUXDB_VERSION').
 2. Create the directory `/srv/ha-history-db`, and the following sub-directories:
    - `backup`.
-4. For the file `/srv/.env` add the following content:
+3. For the file `/srv/.env` add the following content:
    - `HA_HISTORY_DB_ROOT_PASSWORD` - Chose a complex and long password.
    - `HA_HISTORY_DB_ROOT_TOKEN` kan only be added after the InfluxDB instance has been setup (Data -> API Tokens -> admin's Token).
+   - `HA_HISTORY_DB_GRAFANA_PASSWORD` - Chose a complex and long password.
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
 HA_HISTORY_DB_ROOT_USER=admin
 HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
 HA_HISTORY_DB_ROOT_TOKEN=[not shown here]
+HA_HISTORY_DB_GRAFANA_USER=grafana
+HA_HISTORY_DB_GRAFANA_PASSWORD=not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
@@ -159,7 +162,14 @@ HA_HISTORY_DB_BUCKET=ha
    ```
 7. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
-8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+8. Setup a grafana-user with the following on server1:
+   - `sudo docker-compose exec ha-history-db bash`.
+     - With shell in the container (change password according to step 3 above):
+       ```
+       influx user create -n grafana -p PASSWORD -o lite
+       ```
+       - No error/output should occur.
+9. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -237,9 +247,9 @@ _influxdb_backup >> "${influxdb_logfile}" 2>&1
 _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
-9. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
-10. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
-11. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+10. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
+11. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
+12. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
@@ -296,6 +306,15 @@ HA_GRAFANA_HOSTNAME=localhost
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
+7. In web browser go the IP address (or hostname) of server1 and port 3000, for example [http://192.168.2.30:3000/](http://192.168.2.30:3000/) (yes, we setup grafana to utilize no credentials).
+   - Go to `Configuration` -> `Data sources` -> `Add new data source`:
+     - Choose `InfluxDB`:
+     - Set `Name`: `ha_history_db`.
+     - Choose `Query language`: `Flux`.
+     - Set `URL`: `http://192.168.2.30:8086`.
+     - Choose `Basic Auth` under `Auth` (yes, we should use a more secure way, such as token).
+     - Check `Skip TLS Verify`.
+     - 
 
 # Setup for Home Assistant.
 
