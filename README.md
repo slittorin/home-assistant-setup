@@ -104,15 +104,14 @@ Therefore we also add InfluxDB (to capture states) and Grafana to present histor
    - `backup`.
 3. For the file `/srv/.env` add the following content:
    - `HA_HISTORY_DB_ROOT_PASSWORD` - Chose a complex and long password.
-   - `HA_HISTORY_DB_ROOT_TOKEN` kan only be added after the InfluxDB instance has been setup (Data -> API Tokens -> admin's Token).
-   - `HA_HISTORY_DB_GRAFANA_PASSWORD` - Chose a complex and long password.
+   - `HA_HISTORY_DB_ROOT_TOKEN` - Can only be added after the InfluxDB instance has been setup (Data -> API Tokens -> admin's Token), see below.
+   - `HA_HISTORY_DB_GRAFANA_TOKEN` - Can only be added after the InfluxDB instance has been setup (Data -> API Tokens -> admin's Token), see below.
 ```
 HA_HISTORY_DB_HOSTNAME=localhost
 HA_HISTORY_DB_ROOT_USER=admin
 HA_HISTORY_DB_ROOT_PASSWORD=[not shown here]
 HA_HISTORY_DB_ROOT_TOKEN=[not shown here]
-HA_HISTORY_DB_GRAFANA_USER=grafana
-HA_HISTORY_DB_GRAFANA_PASSWORD=not shown here]
+HA_HISTORY_DB_GRAFANA_TOKEN=not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
@@ -162,14 +161,11 @@ HA_HISTORY_DB_BUCKET=ha
    ```
 7. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
-8. Setup a grafana-user with the following on server1:
-   - `sudo docker-compose exec ha-history-db bash`.
-     - With shell in the container (change password according to step 3 above):
-       ```
-       influx user create -n grafana -p PASSWORD -o lite
-       ```
-       - No error/output should occur.
-9. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+   -  Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
+     - Set a descriptive name: `Read to HA bucket`
+     - Choose bucket `ha` for both read, but remove from write.
+   - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
+8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -247,9 +243,9 @@ _influxdb_backup >> "${influxdb_logfile}" 2>&1
 _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
-10. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
-11. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
-12. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+9. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
+10. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
+11. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
