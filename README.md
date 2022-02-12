@@ -162,9 +162,9 @@ HA_HISTORY_DB_BUCKET=ha
 7. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
    -  Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
-     - Set a descriptive name: `Read to HA bucket`
-     - Choose bucket `ha` for both read, but remove from write.
-   - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
+      - Set a descriptive name: `Read to HA bucket`
+      - Choose bucket `ha` for both read, but remove from write.
+      - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
 8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
@@ -308,12 +308,13 @@ HA_GRAFANA_HOSTNAME=localhost
      - Set `Name`: `ha_history_db`.
      - Choose `Query language`: `Flux`.
      - Set `URL`: `http://192.168.2.30:8086`.
-     - Choose `Basic Auth` under `Auth` (yes, we should use a more secure way, such as token).
      - Check `Skip TLS Verify`.
-     - Under `Basic Auth Details`:
-       - Set `User`: `grafana` and `Password` according to step 3 in the setup for Influx DB.
      - Under `InfluxDB Details`:
        - Set `Organization`: `lite`
+       - Set `Token` to read-token created in step 7 for the setup of InfluxDB.
+       - Set `Default bucket`: `ha`
+       - Press `Save and test`.
+         - The result should be `1 buckets found`.
 
 # Setup for Home Assistant.
 
