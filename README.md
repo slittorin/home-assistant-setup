@@ -38,7 +38,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
 
 #### Historical data
 
-As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics) Home Assistant seems to be on the way to store and manage historical data, but is not yet there, including to graphically present historical data that extends the purge period for the database.\
+As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics) Home Assistant seems to be on the way to store and manage historical data in a better way, but is still in development phase, including capability to graphically present historical data.\
 Therefore we also add InfluxDB (to capture states) and Grafana to present historical data.
 
 Note however that we may not want to write all data to InfluxDB, see [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
