@@ -49,8 +49,19 @@ However, as these capabilities are still in the early stages, specifically since
 
 This of course entitles that we need to set governing principles to support the capabilities we required, for both sensors and where to store data.
 
-We therefore define the following:
-- States and events in HA database (MariaDB), acc
+We therefore define the following for storage and use of databases:
+- States and events in HA database (MariaDB):
+  - We keep the data for 30 days (purge period).
+  - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
+- Statistics tables in HA database (MariaDB) according to above.
+  - If we want to utilize statistics, we need to ensure that the sensors will be able to be added to 
+- States also written to InfluxDB for historical data.
+  - Retention set to 53 weeks. No need to keep detailed state data for that long.
+    - For sensors that write large amount of data, we may want to exlude this to be written to InfluxDB.
+      - See [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
+      - If we want to have this type of data as historical data, this means that we need to create sensors that down-sample the sensors already in Home Assistant.
+  - Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
+    - No retention set for this bucket.
 
 
 Note that we may not want to write all data to InfluxDB, see [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration), since the data volume will be too large.
