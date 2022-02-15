@@ -49,7 +49,7 @@ However, as these capabilities are still in the early stages, specifically since
 
 This entitles that we need to set governing principles to support the capabilities we required, for both sensors and where to store data.
 
-We therefore define the following for storage and use of databases:
+##### We therefore define the following for storage and use of databases:
 - States and events in HA database (MariaDB):
   - We keep the data for 30 days (purge period).
   - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
@@ -66,7 +66,7 @@ We therefore define the following for storage and use of databases:
   - Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
     - No retention set for this bucket.
 
-We therefore defined the following for visualization:
+##### We therefore defined the following for visualization:
 - For simplified visualization of sensor-states and historical data:
   - Utilize the built in HA functions.
   - Possibly with added graph-capability through Apex Charts.
