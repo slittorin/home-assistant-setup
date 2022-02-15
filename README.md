@@ -87,9 +87,6 @@ In the future, dependent on where HA platform will go, we may change the governi
 - Backup Home Assistant with snapshots (includes MariaDB database) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
-- We backup MariaDB separately according:
-  - Daily snapshots, keep for 7 days (monday through saturday).
-  - Weekly snapshots (sunday), keep for 8 weeks.
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
