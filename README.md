@@ -47,7 +47,7 @@ As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#lo
 
 However, as these capabilities are still in the early stages, specifically since not all integrations/capabilities use the historical data tables yet, and most importantly since the visualization capabilities in HA is not yet to a standard, we want to utilize historical data also through InfluxDB and Grafana for visualizations.
 
-This of course entitles that we need to set governing principles to support the capabilities we required, for both sensors and where to store data.
+This entitles that we need to set governing principles to support the capabilities we required, for both sensors and where to store data.
 
 We therefore define the following for storage and use of databases:
 - States and events in HA database (MariaDB):
@@ -56,7 +56,7 @@ We therefore define the following for storage and use of databases:
 - Statistics tables in HA database (MariaDB) according to above.
   - If we want to utilize statistics, we need to ensure that the sensors will be able to be added to [Long term statistics](https://data.home-assistant.io/docs/statistics/).
     - Note that not all integrations and addons can utilize long term statistics yet, therefore we may need to create additional sensors to achieve this.
-    - Therefore ensure that sensors utilize `device_class`, `state_class` and `unit_of_measurement` according to [Configuration and governing principles](https://github.com/slittorin/home-assistant-configuration#governing-principles).
+    - Ensure that sensors utilize `device_class`, `state_class` and `unit_of_measurement` according to [Configuration and governing principles](https://github.com/slittorin/home-assistant-configuration#governing-principles).
     - You can verify that data is written to the `statistics` table by verifying stored entities in the `statistics_meta` table according to [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
 - States also written to InfluxDB for historical data.
   - Retention set to 53 weeks. No need to keep detailed state data for that long.
