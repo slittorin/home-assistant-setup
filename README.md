@@ -28,6 +28,11 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - The output should state 'Configuration valid'. If not, change the recorder config above.
    - On the same page press `Restart` under `Server management`.
 - Any warnings or errors can be found in the file `/config/home-assistant.log`.
+- The data is stored in the following tables:
+  - `statistics` and `statistics_short_term`:
+    - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
+    - `statistics` (data written for hourly data) is not purged presently purged. But we can expect this in the future?
+    - `statistics_short_term` (data written for 5 minute data) is purged according to Recorder setting according to [statement](https://github.com/home-assistant/core/issues/64383#issuecomment-1015886985).
 
 ## Governing principles
 
@@ -36,12 +41,20 @@ For all changes to Home Assistant configuration files, you usually need to resta
 - Keep to standard setup/config as much as possible.
 - Limit the number of exposed ports/services on the Home Assistant.
 
-#### Historical data
+#### Historical data and visualization
 
-As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics) Home Assistant seems to be on the way to store and manage historical data in a better way, but is still in development phase, including capability to graphically present historical data.\
-Therefore we also add InfluxDB (to capture states) and Grafana to present historical data.
+As of [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics) Home Assistant is be on the way to store and manage historical data (see information about tables above) in a better way, but is still in development phase, including capability to graphically visualize historical data.
 
-Note however that we may not want to write all data to InfluxDB, see [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
+However, as these capabilities are still in the early stages, specifically since not all integrations/capabilities use the historical data tables yet, and most importantly since the visualization capabilities in HA is not yet to a standard, we want to utilize historical data also through InfluxDB and Grafana for visualizations.
+
+This of course entitles that we need to set governing principles to support the capabilities we required, for both sensors and where to store data.
+
+We therefore define the following:
+- States and events in HA database (MariaDB), acc
+
+
+Note that we may not want to write all data to InfluxDB, see [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration), since the data volume will be too large.
+
 
 #### Database retention and history
 
@@ -49,11 +62,7 @@ Note however that we may not want to write all data to InfluxDB, see [Exclude se
   - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
   - Purge is set on recorder.
 - For history (in MariaDB, not InfluxDB):
-  - The data is stored in the following tables:
-    - `statistics` and `statistics_short_term`:
-      - Added to HA in [2021.8.0](https://www.home-assistant.io/blog/2021/08/04/release-20218/#long-term-statistics).
-      - `statistics` (data written for hourly data) is not purged presently purged. But we can expect this in the future?
-      - `statistics_short_term` (data written for 5 minute data) is purged according to Recorder setting according to [statement](https://github.com/home-assistant/core/issues/64383#issuecomment-1015886985).
+
 - Keep all data forever in the history database (InfluxDB).
   - By default the retention is set to 'Forever' in InfluxDB.
 
