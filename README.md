@@ -68,10 +68,10 @@ This entitles that we need to set governing principles to support the capabiliti
 
 ##### We therefore define the following for visualization:
 - For simplified visualization of sensor-states and historical data:
-  - Utilize the built in HA functions.
+  - Utilize the built in HA functions and graphs.
   - Possibly with added graph-capability through Apex Charts.
 - For more advanced visualization and historical data:
-  - Utilize Grafana to utilize data from:
+  - Utilize Grafana to retrieve data from:
     - InfluxDB:
       - For detailed data, from bucket that stores data in 53 weeks.
       - For hourly data, from bucket that contains down-sampled data (stored indefinitely).
