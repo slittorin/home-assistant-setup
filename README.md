@@ -81,16 +81,6 @@ We therefore defined the following for visualization:
 
 In the future, dependent on where HA platform will go, we may change the governing principles for storage and visualization of data.
 
-#### Database retention and history
-
-- Allow 30 days of data to reside within the Home Assistant database (MariaDB) before it is put into the history database.
-  - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
-  - Purge is set on recorder.
-- For history (in MariaDB, not InfluxDB):
-
-- Keep all data forever in the history database (InfluxDB).
-  - By default the retention is set to 'Forever' in InfluxDB.
-
 #### Backup
 
 - [GitHub Repository home-assistant-config](https://github.com/slittorin/home-assistant-config) is utilized for configuration files (push, on demand).
