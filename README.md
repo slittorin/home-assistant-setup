@@ -54,7 +54,10 @@ We therefore define the following for storage and use of databases:
   - We keep the data for 30 days (purge period).
   - We have a rather good setup that should cope with the load and volume of data, with the current number of sensors/integrations.
 - Statistics tables in HA database (MariaDB) according to above.
-  - If we want to utilize statistics, we need to ensure that the sensors will be able to be added to 
+  - If we want to utilize statistics, we need to ensure that the sensors will be able to be added to [Long term statistics](https://data.home-assistant.io/docs/statistics/).
+    - Note that not all integrations and addons can utilize long term statistics yet, therefore we may need to create additional sensors to achieve this.
+    - Therefore ensure that sensors utilize `device_class`, `state_class` and `unit_of_measurement` according to [Configuration and governing principles](https://github.com/slittorin/home-assistant-configuration#governing-principles).
+    - You can verify that data is written to the `statistics` table by verifying stored entities in the `statistics_meta` table according to [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
 - States also written to InfluxDB for historical data.
   - Retention set to 53 weeks. No need to keep detailed state data for that long.
     - For sensors that write large amount of data, we may want to exlude this to be written to InfluxDB.
@@ -63,9 +66,20 @@ We therefore define the following for storage and use of databases:
   - Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
     - No retention set for this bucket.
 
+We therefore defined the following for visualization:
+- For simplified visualization of sensor-states and historical data:
+  - Utilize the built in HA functions.
+  - Possibly with added graph-capability through Apex Charts.
+- For more advanced visualization and historical data:
+  - Utilize Grafana to utilize data from:
+    - InfluxDB:
+      - For detailed data, from bucket that stores data in 53 weeks.
+      - For hourly data, from bucket that contains down-sampled data (stored indefinitely).
+    - HA database (MariaDB) and `statistics` table:
+      - For hourly data (sum, min, max, medium).
+    - We therefore have the possibility and capability to utilize two database sources for Grafana.
 
-Note that we may not want to write all data to InfluxDB, see [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration), since the data volume will be too large.
-
+In the future, dependent on where HA platform will go, we may change the governing principles for storage and visualization of data.
 
 #### Database retention and history
 
