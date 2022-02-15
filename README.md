@@ -66,7 +66,7 @@ This entitles that we need to set governing principles to support the capabiliti
   - Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
     - No retention set for this bucket.
 
-##### We therefore defined the following for visualization:
+##### We therefore define the following for visualization:
 - For simplified visualization of sensor-states and historical data:
   - Utilize the built in HA functions.
   - Possibly with added graph-capability through Apex Charts.
