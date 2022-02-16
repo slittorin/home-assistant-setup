@@ -36,6 +36,8 @@ For all changes to Home Assistant configuration files, you usually need to resta
 
 ## Governing principles
 
+EDIT 2022-01-16: Changed to ue only one InfluxDB bucket with no retention, instead of standard bucket for 53 weeks and down-sample data through InfluxDB capabilities into hourly measures in a separate bucket. This will be a configuration that will not require complexity with down-sampling.
+
 #### Generic
 
 - Keep to standard setup/config as much as possible.
@@ -59,12 +61,13 @@ This entitles that we need to set governing principles to support the capabiliti
     - Ensure that sensors utilize `device_class`, `state_class` and `unit_of_measurement` according to [Configuration and governing principles](https://github.com/slittorin/home-assistant-configuration#governing-principles).
     - You can verify that data is written to the `statistics` table by verifying stored entities in the `statistics_meta` table according to [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
 - States also written to InfluxDB for historical data.
-  - Retention set to 53 weeks. No need to keep detailed state data for that long.
+  - ~~Retention set to 53 weeks. No need to keep detailed state data for that long.~~
+  - No retention for this bucket.
     - For sensors that write large amount of data, we may want to exlude this to be written to InfluxDB.
       - See [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
       - If we want to have this type of data as historical data, this means that we need to create sensors that down-sample the sensors already in Home Assistant.
-  - Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
-    - No retention set for this bucket.
+  ~~- Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
+    ~~- No retention set for this bucket.~~
 
 ##### We therefore define the following for visualization
 - For simplified visualization of sensor-states and historical data:
