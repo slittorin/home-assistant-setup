@@ -66,7 +66,7 @@ This entitles that we need to set governing principles to support the capabiliti
     - For sensors that write large amount of data, we may want to exlude this to be written to InfluxDB.
       - See [Exclude sensors for InfluxDB integration](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#exclude-sensors-for-influxdb-integration).
       - If we want to have this type of data as historical data, this means that we need to create sensors that down-sample the sensors already in Home Assistant.
-  ~~- Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.
+  ~~- Down-sample data through InfluxDB capabilities into hourly measures in a separate bucket.~~
     ~~- No retention set for this bucket.~~
 
 ##### We therefore define the following for visualization
