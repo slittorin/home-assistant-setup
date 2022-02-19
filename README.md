@@ -127,77 +127,77 @@ In the future, dependent on where HA platform will go, we may change the governi
      ```
 3. We create a script that creates the necessary OS/HW statistics that we can store in files, that can be read by Home Assistant.
    - Create the following file `/srv/os-stats.sh`:
-     ```bash
-     #!/bin/bash
-     
-     # Purpose:
-     # This script saves OS/HW statistics in files to be read by Home Assistant.
-     # Script takes 15 minutes to run.
-     # Put in cron to be run every 15 minutes.
-     #
-     # Requires sysstat to be installed.
-     #
-     # Statistics is saved to:
-     # /srv/stats/disk_used_pct.txt          - Disk utilization in percent.
-     # /srv/stats/mem_used_pct.txt           - RAM utilization in percent.
-     # /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
-     # /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 14 minutes and 55 seconds.
-     #
-     # Usage:
-     # ./os-stats.sh
+```bash
+#!/bin/bash
 
-     # Load environment variables (mainly secrets).
-     if [ -f "/srv/.env" ]; then
-         export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-     fi
+# Purpose:
+# This script saves OS/HW statistics in files to be read by Home Assistant.
+# Script takes 15 minuts to run.
+# Put in cron to be run every 15 minutes.
+#
+# Requires sysstat to be installed.
+#
+# Statistics is saved to:
+# /srv/stats/disk_used_pct.txt          - Disk utilization in percent.
+# /srv/stats/mem_used_pct.txt           - RAM utilization in percent.
+# /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
+# /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 14 minutes and 55 seconds.
+#
+# Usage:
+# ./os-stats.sh
 
-     # Variables:
-     base_dir="/srv"
-     stats_dir="/srv/stats"
+# Load environment variables (mainly secrets).
+if [ -f "/srv/.env" ]; then
+    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
+fi
 
-     _initialize() {
-         cd "${base_dir}"
-         mkdir -p ${stats_dir}
-     }
-     
-     # Pct used for specific mount directry, usually /
-     _disk_used() {
-        MOUNT_DIR="/"
-        USED_PCT=`df -m ${MOUNT_DIR} | tail -1 | awk '{ print $5 }' | sed 's/%//'`
-        echo "${USED_PCT}" > ${stats_dir}/disk_used_pct.txt
-     }
-     
-     # Ram used by the system.
-     _ram_used() {
-        USED_PCT=`free -m | grep "Mem:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-        echo "${USED_PCT}" > ${stats_dir}/mem_used_pct.txt
-     }
+# Variables:
+base_dir="/srv"
+stats_dir="/srv/stats"
 
-     # Swap used by the system.
-     _swap_used() {
-        USED_PCT=`free -m | grep "Swap:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-        echo "${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
-     }
-     
-     # CPU percentage retrieved every 5 seconds for 180 times.
-     # This gives the load average over 15 minutes.
-     _cpu_used() {
-        USED_PCT=`sar 5 180 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
-        echo "${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
-     }
-     
-     _finalize() {
-         exit 0
-     }
-     
-     # Main
-     _initialize
-     _disk_used
-     _ram_used
-     _swap_used
-     _cpu_used
-     _finalize
-     ```
+_initialize() {
+    cd "${base_dir}"
+    mkdir -p ${stats_dir}
+}
+
+# Pct used for specific mount directry, usually /
+_disk_used() {
+   MOUNT_DIR="/"
+   USED_PCT=`df -m ${MOUNT_DIR} | tail -1 | awk '{ print $5 }' | sed 's/%//'`
+   echo "${USED_PCT}" > ${stats_dir}/disk_used_pct.txt
+}
+
+# Ram used by the system.
+_ram_used() {
+   USED_PCT=`free -m | grep "Mem:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
+   echo "${USED_PCT}" > ${stats_dir}/mem_used_pct.txt
+}
+
+# Swap used by the system.
+_swap_used() {
+   USED_PCT=`free -m | grep "Swap:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
+   echo "${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
+}
+
+# CPU percentage retrieved every 5 seconds for 180 times.
+# This gives the load average over 15 minutes.
+_cpu_used() {
+   USED_PCT=`sar 5 179 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
+   echo "${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
+}
+
+_finalize() {
+    exit 0
+}
+
+# Main
+_initialize
+_disk_used
+_ram_used
+_swap_used
+_cpu_used
+_finalize
+```
    - Make it executable with `chmod ug+x os-stats.sh`.
    - Add it to crontab with `crontab -e` to run every 15 minutes by adding:
      ```cron
