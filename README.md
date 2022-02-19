@@ -274,7 +274,7 @@ HA_HISTORY_DB_BUCKET=ha
       - Set a descriptive name: `Read to HA bucket`
       - Choose bucket `ha` for both read, but remove from write.
       - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
-8. Create the following backup-script `/srv/ha-history-db/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+8. Create the following backup-script `/srv/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -352,9 +352,9 @@ _influxdb_backup >> "${influxdb_logfile}" 2>&1
 _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
-9. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/ha-history-db/backup-influxdb.sh`.
+9. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/backup-influxdb.sh`.
 10. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
-11. Wait to the day after and check the log-file `/srv/ha-history-db/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+11. Wait to the day after and check the log-file `/srv/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
