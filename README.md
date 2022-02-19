@@ -199,10 +199,7 @@ _cpu_used
 _finalize
 ```
    - Make it executable with `chmod ug+x os-stats.sh`.
-   - Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding:
-     ```cron
-     */15 * * * * /srv/os-stats.sh
-     ```
+   - Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
 
 ## Installation for InfluxDB
 
