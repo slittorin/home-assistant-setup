@@ -111,10 +111,14 @@ In the future, dependent on where HA platform will go, we may change the governi
 
 ## Preparation
 
-1. Under `/srv`:
+1. Install sysstat to get system statistics with:
+  ```bash
+  sudo apt install sysstat
+  ```
+2. Under `/srv`:
    - Create the file `.env`.
    - Create the file `/srv/docker-compose.yml` with the following content:
-     ```
+     ```yaml
      version: '3'
      
      services:
