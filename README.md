@@ -141,7 +141,7 @@ In the future, dependent on where HA platform will go, we may change the governi
 # /srv/stats/disk_used_pct.txt          - Disk utilization in percent.
 # /srv/stats/mem_used_pct.txt           - RAM utilization in percent.
 # /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
-# /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 14 minutes and 55 seconds.
+# /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 15 minutes.
 #
 # Usage:
 # ./os-stats.sh
