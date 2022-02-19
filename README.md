@@ -132,7 +132,7 @@ In the future, dependent on where HA platform will go, we may change the governi
      
      # Purpose:
      # This script saves OS/HW statistics in files to be read by Home Assistant.
-     # Script takes 14 minuts and 55 seconds to run.
+     # Script takes 15 minutes to run.
      # Put in cron to be run every 15 minutes.
      #
      # Requires sysstat to be installed.
@@ -179,10 +179,10 @@ In the future, dependent on where HA platform will go, we may change the governi
         echo "${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
      }
      
-     # CPU percentage retrieved every 5 seconds for 179 times.
-     # This gives the load average over 14 minutes and 55 seconds.
+     # CPU percentage retrieved every 5 seconds for 180 times.
+     # This gives the load average over 15 minutes.
      _cpu_used() {
-        USED_PCT=`sar 5 179 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
+        USED_PCT=`sar 5 180 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
         echo "${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
      }
      
