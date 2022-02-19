@@ -182,7 +182,7 @@ _swap_used() {
 # CPU percentage retrieved every 5 seconds for 180 times.
 # This gives the load average over 15 minutes.
 _cpu_used() {
-   USED_PCT=`sar 5 179 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
+   USED_PCT=`sar 5 180 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
    echo "${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
 }
 
