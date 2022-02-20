@@ -134,7 +134,9 @@ In the future, dependent on where HA platform will go, we may change the governi
      - Transfer Your Public Key to the home assistant server with `ssh-copy-id root@192.168.2.20`:
        - Enter `yes` at 'Are you sure you want to continue connecting'.
        - Enter the password for ssh, at the home assistant server.
-     - The files are now copied to the home assistant server-
+     - The files are now copied to the home assistant server. Verify on home assistant server with:
+       - `cat /root/.ssh/authorized_keys`
+         - The file should contain the public key and `pi@server1` at the end.
 
 ## OS/HW statistics
 
