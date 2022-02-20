@@ -127,16 +127,15 @@ In the future, dependent on where HA platform will go, we may change the governi
      volumes:
      ```
 3. To all HA to utilize shell on server1, setup key-based authentication for SSH:
-   - At the home directory for user pi (yes, I know, we should create a specific user for this, but this is not an Enterprise environment) with `ssh-keygen -t rsa`:
-     - Press enter for file to save the key (/home/pi/.ssh/id_rsa).
-     - Press enter for passphrase (empty passphrase).
    - Note that this step can only be performed after home assistant server is [setup with ssh access](https://github.com/slittorin/home-assistant-setup#general-setup):
-     - Transfer Your Public Key to the home assistant server with `ssh-copy-id root@192.168.2.20`:
+   - On home assistant server with ssh:
+     - At the home directory for user root`, generate at key with `ssh-keygen -t rsa`:
+       - Press enter for file to save the key (/root/.ssh/id_rsa).
+       - Press enter for passphrase (empty passphrase).
+     - Transfer Your Public Key to the home assistant server with `ssh-copy-id pi@192.168.2.30`:
        - Enter `yes` at 'Are you sure you want to continue connecting'.
-       - Enter the password for ssh, at the home assistant server.
-     - The files are now copied to the home assistant server. Verify on home assistant server with:
-       - `cat /root/.ssh/authorized_keys`
-         - The file should contain the public key and `pi@server1` at the end.
+       - Enter the password for ssh, at server1.
+     - The public key is now copied, and you shall be able to utilize `ssh pi@192.168.2.30` without password.
 
 ## OS/HW statistics
 
