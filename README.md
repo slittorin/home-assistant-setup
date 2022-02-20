@@ -130,7 +130,7 @@ In the future, dependent on where HA platform will go, we may change the governi
    - At the home directory for user pi (yes, I know, we should create a specific user for this, but this is not an Enterprise environment) with `ssh-keygen -t rsa`:
      - Press enter for file to save the key (/home/pi/.ssh/id_rsa).
      - Press enter for passphrase (empty passphrase).
-   - Note that this step can only be performed when home assistant server is [setup with ssh](https://github.com/slittorin/home-assistant-setup#general-setup):
+   - Note that this step can only be performed after home assistant server is [setup with ssh access](https://github.com/slittorin/home-assistant-setup#general-setup):
      - Transfer Your Public Key to the home assistant server with `ssh-copy-id root@192.168.2.20`:
        - Enter `yes` at 'Are you sure you want to continue connecting'.
        - Enter the password for ssh, at the home assistant server.
