@@ -125,7 +125,12 @@ In the future, dependent on where HA platform will go, we may change the governi
      
      volumes:
      ```
-3. We create a script that creates the necessary OS/HW statistics that we can store in files, that can be read by Home Assistant.
+
+## OS/HW statistics
+
+We want to track OS/HW statistics that can be pulled into HA.
+
+1. We create a script that creates the necessary OS/HW statistics that we can store in files, that can be read by Home Assistant.
    - Create the following file `/srv/os-stats.sh`:
 ```bash
 #!/bin/bash
@@ -198,8 +203,8 @@ _swap_used
 _cpu_used
 _finalize
 ```
-   - Make it executable with `chmod ug+x os-stats.sh`.
-   - Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
+2. Make it executable with `chmod ug+x os-stats.sh`.
+3. Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
 
 ## Installation for InfluxDB
 
