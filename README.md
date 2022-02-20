@@ -129,7 +129,7 @@ In the future, dependent on where HA platform will go, we may change the governi
 3. To all HA to utilize shell on server1, setup key-based authentication for SSH:
    - Note that this step can only be performed after home assistant server is [setup with ssh access](https://github.com/slittorin/home-assistant-setup#general-setup):
    - On home assistant server with ssh:
-     - At the home directory for user root`, generate at key with `ssh-keygen -t rsa`:
+     - At the home directory for user root, generate at key with `ssh-keygen -t rsa`:
        - Press enter for file to save the key (/root/.ssh/id_rsa).
        - Press enter for passphrase (empty passphrase).
      - Transfer Your Public Key to the home assistant server with `ssh-copy-id pi@192.168.2.30`:
