@@ -148,6 +148,7 @@ We want to track OS/HW statistics that can be pulled into HA.
 # /srv/stats/mem_used_pct.txt           - RAM utilization in percent.
 # /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
 # /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 15 minutes.
+# /srv/stats/cpu_temp.txt               - CPU temperature in degrees celcius.
 #
 # Usage:
 # ./os-stats.sh
@@ -170,26 +171,33 @@ _initialize() {
 _disk_used() {
    MOUNT_DIR="/"
    USED_PCT=`df -m ${MOUNT_DIR} | tail -1 | awk '{ print $5 }' | sed 's/%//'`
-   echo "${USED_PCT}" > ${stats_dir}/disk_used_pct.txt
+   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/disk_used_pct.txt
 }
 
 # Ram used by the system.
 _ram_used() {
    USED_PCT=`free -m | grep "Mem:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-   echo "${USED_PCT}" > ${stats_dir}/mem_used_pct.txt
+   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/mem_used_pct.txt
 }
 
 # Swap used by the system.
 _swap_used() {
    USED_PCT=`free -m | grep "Swap:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-   echo "${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
+   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
+}
+
+# CPU temp.
+# Works for RPI.
+_cpu_temp() {
+   USED_PCT=`cat cat /sys/class/thermal/thermal_zone0/temp | awk '{ printf("%.f", $1/1000) }'`
+   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/cpu_temp.txt
 }
 
 # CPU percentage retrieved every 5 seconds for 180 times.
 # This gives the load average over 15 minutes.
 _cpu_used() {
    USED_PCT=`sar 5 180 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
-   echo "${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
+   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
 }
 
 _finalize() {
@@ -201,6 +209,7 @@ _initialize
 _disk_used
 _ram_used
 _swap_used
+_cpu_temp
 _cpu_used
 _finalize
 ```
