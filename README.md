@@ -94,7 +94,8 @@ In the future, dependent on where HA platform will go, we may change the governi
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
-- Files from the above are moved to my NAS for storage (old files deleted).
+- TBD. Files from the above are moved to my NAS for storage (old files deleted).
+- TBD. Github for Grafana configuration/dashboards.
 
 ## Conceptual design
 
@@ -135,7 +136,11 @@ In the future, dependent on where HA platform will go, we may change the governi
      - Transfer Your Public Key to the home assistant server with `ssh-copy-id pi@192.168.2.30`:
        - Enter `yes` at 'Are you sure you want to continue connecting'.
        - Enter the password for ssh, at server1.
-     - The public key is now copied, and you shall be able to utilize `ssh pi@192.168.2.30` without password.
+     - The public key is now copied, verify with `ssh pi@192.168.2.30` that should obtain shell without password.
+     - Copy all ssh files to /config/.ssh to allow these to be preserved (may otherwise be removed during upgrades):
+       - `mkdir /config/.ssh`-
+       - `cd /config/.ssh`.
+       - `cp /root/.ssh/* .`.
 
 ## OS/HW statistics
 
