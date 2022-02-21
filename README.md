@@ -138,9 +138,9 @@ In the future, dependent on where HA platform will go, we may change the governi
        - Enter the password for ssh, at server1.
      - The public key is now copied, verify with `ssh pi@192.168.2.30` that should obtain shell without password.
      - Copy all ssh files to /config/.ssh to allow these to be preserved (may otherwise be removed during upgrades):
-       - `mkdir /config/.ssh`-
-       - `cd /config/.ssh`.
-       - `cp /root/.ssh/* .`.
+       - `mkdir /config/.ssh`
+       - `cd /config/.ssh`
+       - `cp /root/.ssh/* .`
 
 ## OS/HW statistics
 
