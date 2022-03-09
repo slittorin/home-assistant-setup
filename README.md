@@ -15,7 +15,10 @@ Therefore we have gone for a two-server setup according to below.
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
   - [OS/HW Statistics](https://github.com/slittorin/home-assistant-setup#oshw-statistics)
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
+    - [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb)
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
+    - [Backup for Grafana](https://github.com/slittorin/home-assistant-setup#backup-for-grafana-database)
+    - [Git for Grafana](https://github.com/slittorin/home-assistant-setup#git-for-grafana)
 - [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
   - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
@@ -306,7 +309,7 @@ HA_HISTORY_DB_BUCKET=ha
       - Choose bucket `ha` for both read, but remove from write.
       - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
 
-## Backup for InfluxDB
+### Backup for InfluxDB
 
 1. Create the following backup-script `/srv/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
@@ -459,9 +462,9 @@ HA_GRAFANA_HOSTNAME=localhost
        - Press `Save and test`.
          - The result should be `1 buckets found`.
 
-## Backup for Grafana Database
+### Backup for Grafana Database
 
-## Git for Grafana
+### Git for Grafana
 
 # Setup for Home Assistant.
 
