@@ -94,8 +94,11 @@ In the future, dependent on where HA platform will go, we may change the governi
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
-- TBD. Files from the above are moved to my NAS for storage (old files deleted).
+- TBD. We backup Grafana database  according:
+  - Daily snapshots, keep for 7 days (monday through saturday).
+  - Weekly snapshots (sunday), keep for 8 weeks.
 - TBD. Github for Grafana configuration/dashboards.
+- TBD. Files from the above are moved to my NAS for storage (old files deleted).
 
 ## Conceptual design
 
@@ -113,9 +116,10 @@ In the future, dependent on where HA platform will go, we may change the governi
 
 ## Preparation
 
-1. Install sysstat to be able to get system statistics with:
+1. Install sysstat to be able to get system statistics and fiddle with json with:
   ```bash
   sudo apt install sysstat
+  sudo apt install jq
   ```
 2. Under `/srv`:
    - Create the file `.env`.
@@ -301,7 +305,10 @@ HA_HISTORY_DB_BUCKET=ha
       - Set a descriptive name: `Read to HA bucket`
       - Choose bucket `ha` for both read, but remove from write.
       - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
-8. Create the following backup-script `/srv/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+
+## Backup for InfluxDB
+
+1. Create the following backup-script `/srv/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -379,9 +386,9 @@ _influxdb_backup >> "${influxdb_logfile}" 2>&1
 _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
-9. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/backup-influxdb.sh`.
-10. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
-11. Wait to the day after and check the log-file `/srv/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/backup-influxdb.sh`.
+3. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
+4. Wait to the day after and check the log-file `/srv/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
@@ -451,6 +458,10 @@ HA_GRAFANA_HOSTNAME=localhost
        - Set `Default bucket`: `ha`
        - Press `Save and test`.
          - The result should be `1 buckets found`.
+
+## Backup for Grafana Database
+
+## Git for Grafana
 
 # Setup for Home Assistant.
 
