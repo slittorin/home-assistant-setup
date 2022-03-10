@@ -518,7 +518,6 @@ _initialize() {
 
 _backup() {
     echo "$(date +%Y%m%d_%H%M%S): Backing up..."
-    #docker-compose -f "${docker_compose_file}" cp "/var/lib/grafana/grafana.db" "${backup_container_dir}"
     docker cp "${container}:/var/lib/grafana/grafana.db" "${backup_dir}"
 
     echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
