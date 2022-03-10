@@ -390,7 +390,7 @@ _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/backup-influxdb.sh`.
-3. Verify that the crontab is correct with `crontab -l` (run in the context of user 'pi').
+3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
@@ -399,7 +399,8 @@ _finalize >> "${influxdb_logfile}" 2>&1
    - If you do not want the 'latest' version, use version number, or use 'main'.
    - At time of writing (20220207) the 'latest' version is 8.3.3 (isolated with running the command `/usr/share/grafana/bin/grafana-server -v` on the container).
 2. Create the directory `/srv/ha-grafana`, and the following sub-directories:
-   - At present no specific directories are used.
+   - `json`.
+   - `backup`.
 4. For the file `/srv/.env` add the following content:
 ```
 HA_GRAFANA_HOSTNAME=localhost
@@ -427,6 +428,7 @@ HA_GRAFANA_HOSTNAME=localhost
     volumes:
       - "ha-grafana-data:/var/lib/grafana"
       - "ha-grafana-config:/etc/grafana"
+      - "/srv/ha-grafana/backup:/backup"
 ```
 5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
 ```
@@ -463,6 +465,89 @@ HA_GRAFANA_HOSTNAME=localhost
          - The result should be `1 buckets found`.
 
 ### Backup for Grafana Database
+
+1. Create the following backup-script `/srv/backup-grafaba.sh` to take Grafaba-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
+```bash
+#!/bin/bash
+
+# Inspired by: https://gist.github.com/mihow/9c7f559807069a03e302605691f85572
+#
+# Purpose:
+# This script backs up full Grafana according to:
+# - Daily snapshots, keep for 7 days (monday through saturday).
+# - Weekly snapshots (sunday), keep for 8 weeks.
+#
+# Usage:
+# ./grafana-backup.sh
+
+# Load environment variables (mainly secrets).
+if [ -f "/srv/.env" ]; then
+    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
+fi
+
+# Variables:
+container="ha-grafana"
+base_dir="/srv"
+docker_compose_file="${base_dir}/docker-compose.yml"
+logfile="${base_dir}/grafana-backup.log"
+backup_dir="${base_dir}/${container}/backup/backup.tmp"
+backup_container_dir="/backup/backup.tmp"
+backup_dest="${base_dir}/${container}/backup/"
+
+# Set name and retention according day of week.
+# Default is daily backup.
+day_of_week=$(date +%u)
+backup_pre="grafana-backup-daily"
+retention_days=7
+if [[ "$day_of_week" == 7 ]]; then # On sundays.
+    backup_pre="grafana-backup-weekly"
+    retention_days=56 # 8 weeks.
+fi
+backup_filename="${backup_pre}-$(date +%Y%m%d_%H%M%S)"
+
+_initialize() {
+    cd "${base_dir}"
+    touch "${logfile}"
+
+    echo ""
+    echo "$(date +%Y%m%d_%H%M%S): Starting Grafana Backup."
+
+    rm -r "${backup_dir}/"
+    mkdir "${backup_dir}"
+}
+
+_backup() {
+    echo "$(date +%Y%m%d_%H%M%S): Backing up..."
+    #docker-compose -f "${docker_compose_file}" cp "/var/lib/grafana/grafana.db" "${backup_container_dir}"
+    docker cp "${container}:/var/lib/grafana/grafana.db" "${backup_dir}"
+
+    echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
+    tar_file="${backup_dest}${backup_filename}.tar"
+    tar -cvf "${tar_file}" "${backup_dir}/"
+    echo "$(date +%Y%m%d_%H%M%S): Compressed backup to: ${tar_file}"
+
+    echo "$(date +%Y%m%d_%H%M%S): Backup done."
+}
+
+_cleanup() {
+    find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete
+    echo "$(date +%Y%m%d_%H%M%S): Done retention cleanup to ${retention_days} days for filenames starting with ${backup_pre}-"
+}
+
+_finalize() {
+    echo "$(date +%Y%m%d_%H%M%S): Finished Grafana Backup."
+    exit 0
+}
+
+# Main
+_initialize >> "${logfile}" 2>&1
+_backup >> "${logfile}" 2>&1
+_cleanup >> "${logfile}" 2>&1
+_finalize >> "${logfile}" 2>&1
+```
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `2 0 * * * /srv/backup-grafana.sh`.
+3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
+4. Wait to the day after and check the log-file `/srv/backup-grafana.log` /and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
 
 ### Git for Grafana
 
