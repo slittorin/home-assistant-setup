@@ -592,7 +592,6 @@ _sync_files() {
     echo "$(date +%Y%m%d_%H%M%S): Synced temp-dir with json-dir."
 }
 
-
 _github_push() {
     cd ${json_dir}
 
@@ -654,12 +653,6 @@ _sync_files >> "${logfile}" 2>&1
 _github_push >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
-
-
-
-
-
-
 
 # Setup for Home Assistant.
 
