@@ -311,7 +311,7 @@ HA_HISTORY_DB_BUCKET=ha
 
 ### Backup for InfluxDB
 
-1. Create the following backup-script `/srv/backup-influxdb.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+1. Create the following backup-script `/srv/influxdb-backup.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -389,9 +389,9 @@ _influxdb_backup >> "${influxdb_logfile}" 2>&1
 _influxdb_cleanup >> "${influxdb_logfile}" 2>&1
 _finalize >> "${influxdb_logfile}" 2>&1
 ```
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/backup-influxdb.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `1 0 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
-4. Wait to the day after and check the log-file `/srv/backup-influxdb.log` /and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+4. Wait to the day after and check the log-file `/srv/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
@@ -466,7 +466,7 @@ HA_GRAFANA_HOSTNAME=localhost
 
 ### Backup for Grafana Database
 
-1. Create the following backup-script `/srv/backup-grafaba.sh` to take Grafaba-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
+1. Create the following backup-script `/srv/grafana-backup.sh` to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
 ```bash
 #!/bin/bash
 
@@ -544,9 +544,9 @@ _backup >> "${logfile}" 2>&1
 _cleanup >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `2 0 * * * /srv/backup-grafana.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `2 0 * * * /srv/grafana-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
-4. Wait to the day after and check the log-file `/srv/backup-grafana.log` /and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
+4. Wait to the day after and check the log-file `/srv/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
 
 ### Git for Grafana
 
