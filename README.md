@@ -481,22 +481,7 @@ Perform the following:
    - Copy the token.
 2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` (where TOKEN is the copied token, ensure that username and repository is correct):
    `GITHUB_CONNECT_STRING=https://TOKEN@github.com/slittorin/grafana-config`
-3. Through the `File Editor` add-on, create `.gitignore` in `/srv/ha-grafana/json` with the following content:
-```git config
-# .gitignore for Grafana JSON-dashboards.
-
-# First rule: Ignore everything, all files in root and all directories.
-*
-*/*
-
-# Second rule: Whitelisted files, these will not be ignored.
-!*.json
-!.gitignore
-
-
-# Last rule: If we make a mistake above, ensure these files are ignored, otherwise your secret data/credentials will leak.
-.env
-```
+3. We do not need a .gitignore file as we want all files and directories to be pushed.
 4. Through the 'SSH & Web terminal' run the following in the `/srv/ha-grafana/json` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
    You will be asked to provide a comment at commit.
 ```bash
