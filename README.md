@@ -102,6 +102,7 @@ In the future, dependent on where HA platform will go, we may change the governi
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
+  - See [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb) below.
 - We backup Grafana database according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
