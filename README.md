@@ -94,13 +94,16 @@ In the future, dependent on where HA platform will go, we may change the governi
 - Backup Home Assistant with snapshots (includes MariaDB database) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
+  - The backup files are daily copied to server 1.
+    - Can also be triggered manually.
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
-- We backup Grafana database  according:
+- We backup Grafana database according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
 - Github for Grafana dashboards.
+  - Triggered from Home Assistant.
 - TBD. Files from the above are moved to my NAS for storage (old files deleted).
 
 ## Conceptual design
