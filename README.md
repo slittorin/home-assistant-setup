@@ -14,6 +14,7 @@ Therefore we have gone for a two-server setup according to below.
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
   - [OS/HW Statistics](https://github.com/slittorin/home-assistant-setup#oshw-statistics)
+  - [Docker volume sizes](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#docker-volume-sizes).
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
     - [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb)
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
