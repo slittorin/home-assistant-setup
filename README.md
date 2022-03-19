@@ -99,15 +99,17 @@ In the future, dependent on where HA platform will go, we may change the governi
   - Copy backup files daily to server 1 each morning: 
     - See [Home Assistant Configuration Copy backup files to server 1](https://github.com/slittorin/home-assistant-configuration#copy-backup-files-to-server1).
     - Can also be triggered manually.
+- We backup Grafana database according:
+  - Daily snapshots, keep for 7 days (monday through saturday).
+  - Weekly snapshots (sunday), keep for 8 weeks.
+  - See [Backup for Grafana](https://github.com/slittorin/home-assistant-setup#backup-for-grafana-database) below.
+- Git for Grafana dashboards.
+  - Triggered from Home Assistant.
+  - See [Git for Grafana](https://github.com/slittorin/home-assistant-setup#git-for-grafana) below.
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
   - See [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb) below.
-- We backup Grafana database according:
-  - Daily snapshots, keep for 7 days (monday through saturday).
-  - Weekly snapshots (sunday), keep for 8 weeks.
-- Github for Grafana dashboards.
-  - Triggered from Home Assistant.
 - TBD. Files from the above are moved to my NAS for storage (old files deleted).
 
 ## Conceptual design
@@ -322,8 +324,6 @@ HA_HISTORY_DB_BUCKET=ha
 ```bash
 #!/bin/bash
 
-# Inspired by: https://gist.github.com/mihow/9c7f559807069a03e302605691f85572
-#
 # Purpose:
 # This script backs up full influx according to:
 # - Daily snapshots, keep for 7 days (monday through saturday).
@@ -477,8 +477,6 @@ HA_GRAFANA_HOSTNAME=localhost
 ```bash
 #!/bin/bash
 
-# Inspired by: https://gist.github.com/mihow/9c7f559807069a03e302605691f85572
-#
 # Purpose:
 # This script backs up full Grafana according to:
 # - Daily snapshots, keep for 7 days (monday through saturday).
@@ -636,7 +634,7 @@ then
     COMMENT="Minor change."
 else
     no_comment=0
-    COMMENT="$1"
+    COMMENT="$2"
 fi
 
 _initialize() {
