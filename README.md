@@ -248,7 +248,7 @@ _finalize
 3. Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
 4. Check with `sudo crontab -l` that the row was added.
 
-## Docker volumes
+## Docker volume sizes
 
 We want to track docker volume size statistics, that can be pulled into HA.
 
