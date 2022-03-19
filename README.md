@@ -91,10 +91,10 @@ In the future, dependent on where HA platform will go, we may change the governi
 #### Backup
 
 - [GitHub Repository home-assistant-config](https://github.com/slittorin/home-assistant-config) is utilized for configuration files (push, on demand).
-- Backup Home Assistant with snapshots (includes MariaDB database) according:
+- [Backup Home Assistant with snapshots](https://github.com/slittorin/home-assistant-configuration#backup) (includes MariaDB database) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
-  - The backup files are daily copied to server 1.
+  - The backup files are daily [copied to server 1](https://github.com/slittorin/home-assistant-configuration#copy-backup-files-to-server1).
     - Can also be triggered manually.
 - We backup history database (InfluxDB) according:
   - Daily snapshots, keep for 7 days (monday through saturday).
