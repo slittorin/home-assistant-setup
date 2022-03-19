@@ -352,7 +352,7 @@ influxdb_backup_pre="influxdb-backup-daily"
 retention_days=7
 if [[ "$day_of_week" == 7 ]]; then # On sundays.
     influxdb_backup_pre="influxdb-backup-weekly"
-    retention_days=57 # 8 weeks.
+    retention_days=57 # 8 weeks + 1 day.
 fi
 influxdb_backup_filename="${influxdb_backup_pre}-$(date +%Y%m%d_%H%M%S)"
 
@@ -507,7 +507,7 @@ backup_pre="grafana-backup-daily"
 retention_days=7
 if [[ "$day_of_week" == 7 ]]; then # On sundays.
     backup_pre="grafana-backup-weekly"
-    retention_days=57 # 8 weeks.
+    retention_days=57 # 8 weeks + 1 day.
 fi
 backup_filename="${backup_pre}-$(date +%Y%m%d_%H%M%S)"
 
