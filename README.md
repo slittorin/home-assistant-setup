@@ -365,6 +365,9 @@ HA_HISTORY_DB_BUCKET=ha
       - DOCKER_INFLUXDB_INIT_PASSWORD=${HA_HISTORY_DB_ROOT_PASSWORD}
       - DOCKER_INFLUXDB_INIT_ORG=${HA_HISTORY_DB_ORG}
       - DOCKER_INFLUXDB_INIT_BUCKET=${HA_HISTORY_DB_BUCKET}
+      - INFLUXDB_LOGGING_FORMAT=auto
+      - INFLUXDB_LOGGING_LEVEL=warn
+      - INFLUXDB_LOGGING_SUPPRESS_LOGO=true
     volumes:
       - "ha-history-db-data:/var/lib/influxdb"
       - "ha-history-db-config:/etc/influxdb"
