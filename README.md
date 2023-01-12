@@ -396,7 +396,7 @@ HA_HISTORY_DB_BUCKET=ha
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
    -  Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
       - Set a descriptive name: `Read to HA bucket`
-      - Choose bucket `ha` for both read, but remove from write.
+      - Choose bucket `ha` for read, but remove from write.
       - Choose the newly created token and copy the token and add to `HA_HISTORY_DB_GRAFANA_TOKEN` in `/srv/.env`.
 
 ### Backup for InfluxDB
