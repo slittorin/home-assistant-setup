@@ -831,7 +831,11 @@ _finalize >> "${logfile}" 2>&1
 ```
 ## Backup of Server1 to NAS.
 
-TBD
+1. For the file `/srv/.env` add the following content, with password created on the NAS for the user `pi-backup`.
+   ```
+   NAS_BACKUP_PASSWORD=PIBACKUPPASSWORD
+   ```
+2. 
 
 # Setup for Home Assistant.
 
