@@ -20,6 +20,7 @@ Therefore we have gone for a two-server setup according to below.
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
     - [Backup for Grafana](https://github.com/slittorin/home-assistant-setup#backup-for-grafana-database)
     - [Git for Grafana](https://github.com/slittorin/home-assistant-setup#git-for-grafana)
+  - [Backup of Server1 to NAS](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#backup-of-server1-to-nas)
 - [Setup for Home Assistant](https://github.com/slittorin/home-assistant-setup#setup-for-home-assistant)
   - [Setup MariaDB](https://github.com/slittorin/home-assistant-setup#setup-mariadb)
   - [General setup](https://github.com/slittorin/home-assistant-setup#general-setup)
