@@ -111,7 +111,9 @@ In the future, dependent on where HA platform will go, we may change the governi
   - Daily snapshots, keep for 7 days (monday through saturday).
   - Weekly snapshots (sunday), keep for 8 weeks.
   - See [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb) below.
-- TBD. Files from the above are moved to my NAS for storage (old files deleted).
+- We backup our RPI-server that managed InfluxDB and Grafana.
+  - Since the (SSD-failure](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) we need to backup files from Server1.
+  - We do this by copying the files with rsync a specific share on my NAS.
 
 ## Conceptual design
 
@@ -124,6 +126,9 @@ In the future, dependent on where HA platform will go, we may change the governi
      - Grafana.
    - Intended also to be utilized for other projects.
    - Setup a RPI instance with [Raspberry PI install](https://github.com/slittorin/raspberrypi-install/).
+- (existing) NAS on VLAN-Server (192.168.3.10).
+  - Specific share `server-backup`, without quota, recycle bin or throttle limits.
+  - Specific user `pi-backup` that has RW-access to the above share.
 
 # Setup for Server 1
 
@@ -823,6 +828,9 @@ _sync_files >> "${logfile}" 2>&1
 _github_push >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
+## Backup of Server1 to NAS.
+
+TBD
 
 # Setup for Home Assistant.
 
