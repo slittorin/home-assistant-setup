@@ -113,7 +113,7 @@ In the future, dependent on where HA platform will go, we may change the governi
   - Weekly snapshots (sunday), keep for 8 weeks.
   - See [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb) below.
 - We backup our RPI-server that managed InfluxDB and Grafana.
-  - Since the (SSD-failure](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) we need to backup files from Server1.
+  - Since the [SSD-failure](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) we need to backup files from Server1.
   - We do this by copying the files with rsync a specific share on my NAS.
 
 ## Conceptual design
