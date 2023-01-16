@@ -191,6 +191,7 @@ We want to track OS/HW statistics that can be pulled into HA.
 # /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
 # /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 15 minutes.
 # /srv/stats/cpu_temp.txt               - CPU temperature in degrees celcius.
+# /srv/stats/uptime.txt                 - Uptime since (last reboot).
 #
 # Usage:
 # ./os-stats.sh
@@ -231,8 +232,14 @@ _swap_used() {
 # CPU temp.
 # Works for RPI.
 _cpu_temp() {
-   USED_PCT=`cat cat /sys/class/thermal/thermal_zone0/temp | awk '{ printf("%.f", $1/1000) }'`
+   USED_PCT=`cat /sys/class/thermal/thermal_zone0/temp | awk '{ printf("%.f", $1/1000) }'`
    echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/cpu_temp.txt
+}
+
+# System up since.
+_uptime() {
+   UPTIME=`uptime -s`
+   echo "$(date +%Y%m%d_%H%M%S),${UPTIME}" > ${stats_dir}/uptime.txt
 }
 
 # CPU percentage retrieved every 5 seconds for 180 times.
@@ -252,6 +259,7 @@ _disk_used
 _ram_used
 _swap_used
 _cpu_temp
+_uptime
 _cpu_used
 _finalize
 ```
@@ -411,6 +419,7 @@ HA_HISTORY_DB_BUCKET=ha
 ### Backup for InfluxDB
 
 1. Create the following backup-script `/srv/influxdb-backup.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+   Updated 2023-01-16 with error-management.
 ```bash
 #!/bin/bash
 
@@ -431,60 +440,106 @@ fi
 container="ha-history-db"
 base_dir="/srv"
 docker_compose_file="${base_dir}/docker-compose.yml"
-influxdb_logfile="${base_dir}/influxdb-backup.log"
-influxdb_backup_dir="${base_dir}/${container}/backup/backup.tmp"
-influxdb_backup_container_dir="/backup/backup.tmp"
-influxdb_backup_dest="${base_dir}/${container}/backup/"
+logfile="${base_dir}/influxdb-backup.log"
+logfile_tmp="${base_dir}/influxdb-backup.tmp"
+backup_dir="${base_dir}/${container}/backup/backup.tmp"
+backup_container_dir="/backup/backup.tmp"
+backup_dest="${base_dir}/${container}/backup/"
+error_occured=0
+error_message=""
 
 # Set name and retention according day of week.
 # Default is daily backup.
 day_of_week=$(date +%u)
-influxdb_backup_pre="influxdb-backup-daily"
+backup_pre="influxdb-backup-daily"
 retention_days=7
 if [[ "$day_of_week" == 7 ]]; then # On sundays.
-    influxdb_backup_pre="influxdb-backup-weekly"
+    backup_pre="influxdb-backup-weekly"
     retention_days=57 # 8 weeks + 1 day.
 fi
-influxdb_backup_filename="${influxdb_backup_pre}-$(date +%Y%m%d_%H%M%S)"
+backup_filename="${backup_pre}-$(date +%Y%m%d_%H%M%S)"
 
 _initialize() {
     cd "${base_dir}"
-    touch "${influxdb_logfile}"
+    touch "${logfile}"
 
     echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB Backup."
+    echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB backup."
 
-    rm -r "${influxdb_backup_dir}/"
-    mkdir "${influxdb_backup_dir}"
+    rm -r "${backup_dir}/"
+    mkdir "${backup_dir}"
 }
 
-_influxdb_backup() {
-    echo "$(date +%Y%m%d_%H%M%S): Backing up..."
-    docker-compose -f "${docker_compose_file}" exec -T "${container}" influx backup "${influxdb_backup_container_dir}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"
-
-    echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
-    tar_file="${influxdb_backup_dest}${influxdb_backup_filename}.tar"
-    tar -cvf "${tar_file}" "${influxdb_backup_dir}/"
-    echo "$(date +%Y%m%d_%H%M%S): Compressed backup to: ${tar_file}"
-
-    echo "$(date +%Y%m%d_%H%M%S): Backup done."
+_backup() {
+    echo "$(date +%Y%m%d_%H%M%S): Backup of influxdb started."
+    RESULT=`docker-compose -f "${docker_compose_file}" exec -T "${container}" influx backup "${backup_container_dir}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"`
+    RESULT_CODE=$?
+    if [ ${RESULT_CODE} -ne 0 ]; then
+       error_occured=1
+       error_message="influx backup error"
+       echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+    else
+       echo "$(date +%Y%m%d_%H%M%S): Backup of influxdb performed."
+    fi
 }
 
-_influxdb_cleanup() {
-    find "${influxdb_backup_dest}" -name "${influxdb_backup_pre}-*" -mtime +${retention_days} -delete
-    echo "$(date +%Y%m%d_%H%M%S): Done retention cleanup to ${retention_days} days for filenames starting with ${influxdb_backup_pre}-"
+_compress() {
+    if [ ${error_occured} -eq 0 ]; then
+           echo "$(date +%Y%m%d_%H%M%S): Compress of backup started."
+           tar_file="${backup_dest}${backup_filename}.tar"
+           RESULT=`tar -cvf "${tar_file}" "${backup_dir}/"`
+           RESULT_CODE=$?
+           if [ ${RESULT_CODE} -ne 0 ]; then
+              error_occured=1
+              error_message="tar command error when compressing"
+              echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+           else
+         echo "$(date +%Y%m%d_%H%M%S): Compress of backup performed."
+           fi
+        fi
+}
+
+_cleanup() {
+    if [ ${error_occured} -eq 0 ]; then
+           echo "$(date +%Y%m%d_%H%M%S): Retention of files started."
+           RESULT=`find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete`
+           RESULT_CODE=$?
+           if [ ${RESULT_CODE} -ne 0 ]; then
+              error_occured=1
+              error_message="Error when removing files (retention)"
+              echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+           else
+         echo "$(date +%Y%m%d_%H%M%S): Retention of files performed to ${retention_days} days for filenames starting with ${backup_pre}-"
+           fi
+        fi
 }
 
 _finalize() {
-    echo "$(date +%Y%m%d_%H%M%S): Finished InfluxDB Backup."
-    exit 0
+    if [ ${error_occured} -eq 0 ]; then
+       echo "$(date +%Y%m%d_%H%M%S): Finished InfluxDB backup. No error."
+
+       tail -n10000 ${logfile} > ${logfile_tmp}
+       rm ${logfile}
+       mv ${logfile_tmp} ${logfile}
+
+       exit 0
+    else
+       echo "$(date +%Y%m%d_%H%M%S): Exited InfluxDB backup. ERROR: ${error_message}."
+
+       tail -n10000 ${logfile} > ${logfile_tmp}
+       rm ${logfile}
+       mv ${logfile_tmp} ${logfile}
+
+       exit 1
+    fi
 }
 
 # Main
-_initialize >> "${influxdb_logfile}" 2>&1
-_influxdb_backup >> "${influxdb_logfile}" 2>&1
-_influxdb_cleanup >> "${influxdb_logfile}" 2>&1
-_finalize >> "${influxdb_logfile}" 2>&1
+_initialize >> "${logfile}" 2>&1
+_backup >> "${logfile}" 2>&1
+_compress >> "${logfile}" 2>&1
+_cleanup >> "${logfile}" 2>&1
+_finalize >> "${logfile}" 2>&1
 ```
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:00:01: `* 1 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
@@ -564,10 +619,10 @@ HA_GRAFANA_HOSTNAME=localhost
 ### Backup for Grafana Database
 
 1. Create the following backup-script `/srv/grafana-backup.sh` to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
+   Updated 2023-01-16 with error-management.
 ```bash
 #!/bin/bash
 
-# Purpose:
 # This script backs up full Grafana according to:
 # - Daily snapshots, keep for 7 days (monday through saturday).
 # - Weekly snapshots (sunday), keep for 8 weeks.
@@ -581,16 +636,21 @@ if [ -f "/srv/.env" ]; then
 fi
 
 # Variables:
+# -----------------------------------------------------------------
 container="ha-grafana"
 base_dir="/srv"
 docker_compose_file="${base_dir}/docker-compose.yml"
 logfile="${base_dir}/grafana-backup.log"
+logfile_tmp="${base_dir}/grafana-backup.tmp"
 backup_dir="${base_dir}/${container}/backup/backup.tmp"
 backup_container_dir="/backup/backup.tmp"
 backup_dest="${base_dir}/${container}/backup/"
+error_occured=0
+error_message=""
 
 # Set name and retention according day of week.
 # Default is daily backup.
+# -----------------------------------------------------------------
 day_of_week=$(date +%u)
 backup_pre="grafana-backup-daily"
 retention_days=7
@@ -612,25 +672,65 @@ _initialize() {
 }
 
 _backup() {
-    echo "$(date +%Y%m%d_%H%M%S): Backing up..."
-    docker cp "${container}:/var/lib/grafana/grafana.db" "${backup_dir}"
+    echo "$(date +%Y%m%d_%H%M%S): Copy of grafana.db started."
+    RESULT=`docker cp "${container}:/var/lib/grafana/grafana.db" "${backup_dir}"`
+    RESULT_CODE=$?
+    if [ ${RESULT_CODE} -ne 0 ]; then
+       error_occured=1
+       error_message="docker cp error"
+       echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+    else
+       echo "$(date +%Y%m%d_%H%M%S): Copy of grafana.db performed."
+    fi
 
-    echo "$(date +%Y%m%d_%H%M%S): Compressing Backup..."
-    tar_file="${backup_dest}${backup_filename}.tar"
-    tar -cvf "${tar_file}" "${backup_dir}/"
-    echo "$(date +%Y%m%d_%H%M%S): Compressed backup to: ${tar_file}"
-
-    echo "$(date +%Y%m%d_%H%M%S): Backup done."
+    if [ ${error_occured} -eq 0 ]; then
+       echo "$(date +%Y%m%d_%H%M%S): Compression of backup started."
+       tar_file="${backup_dest}${backup_filename}.tar"
+       RESULT=`tar -cvf "${tar_file}" "${backup_dir}/"`
+       RESULT_CODE=$?
+       if [ ${RESULT_CODE} -ne 0 ]; then
+          error_occured=1
+          error_message="tar command error when compressing"
+          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+       else
+          echo "$(date +%Y%m%d_%H%M%S): Compression of backup performed to: ${tar_file}"
+       fi
+   fi
 }
 
 _cleanup() {
-    find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete
-    echo "$(date +%Y%m%d_%H%M%S): Done retention cleanup to ${retention_days} days for filenames starting with ${backup_pre}-"
+    if [ ${error_occured} -eq 0 ]; then
+       echo "$(date +%Y%m%d_%H%M%S): Retention of files started."
+       RESULT=`find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete`
+       RESULT_CODE=$?
+       if [ ${RESULT_CODE} -ne 0 ]; then
+          error_occured=1
+          error_message="Error when removing files (retention)"
+          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
+       else
+          echo "$(date +%Y%m%d_%H%M%S): Retention of files performed to ${retention_days} days, for filenames starting with ${backup_pre}-"
+       fi
+    fi
 }
 
 _finalize() {
-    echo "$(date +%Y%m%d_%H%M%S): Finished Grafana Backup."
-    exit 0
+    if [ ${error_occured} -eq 0 ]; then
+       echo "$(date +%Y%m%d_%H%M%S): Finished Grafana backup. No error."
+
+       tail -n10000 ${logfile} > ${logfile_tmp}
+       rm ${logfile}
+       mv ${logfile_tmp} ${logfile}
+
+       exit 0
+    else
+       echo "$(date +%Y%m%d_%H%M%S): Exited Grafana backup. ERROR: ${error_message}."
+
+       tail -n10000 ${logfile} > ${logfile_tmp}
+       rm ${logfile}
+       mv ${logfile_tmp} ${logfile}
+
+       exit 1
+    fi
 }
 
 # Main
