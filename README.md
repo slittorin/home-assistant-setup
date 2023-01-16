@@ -940,7 +940,6 @@ _finalize >> "${logfile}" 2>&1
    NAS_BACKUP_PASSWORD=PIBACKUPPASSWORD
    ```
 2. Create the following backup-script `/srv/backup-to-nas.sh` to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
-   Updated 2023-01-16 with error-management.
 ```bash
 #!/bin/bash
 
