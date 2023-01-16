@@ -150,6 +150,8 @@ In the future, dependent on where HA platform will go, we may change the governi
      
      volumes:
      ```
+   - Create the directory `ha/backup`.
+     - Set right permissions to `backup` with `sudo chmod go+rw backup`.
 3. To all HA to utilize shell on server1, setup key-based authentication for SSH:
    - Note that this step can only be performed after home assistant server is [setup with ssh access](https://github.com/slittorin/home-assistant-setup#general-setup):
    - On home assistant server with ssh:
