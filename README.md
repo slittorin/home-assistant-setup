@@ -1065,7 +1065,7 @@ _mkdir >> "${logfile}" 2>&1
 _rsync >> "${logfile}" 2>&1
 _unmount >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
-```bash
+```
 3. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:03:00: `0 3 * * * /srv/backup-to-nas.sh`.
 4. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 5. Wait to the day after and check the log-file `/srv/backup-to-nas.log` and that files are correctly copied to the NAS-share.
