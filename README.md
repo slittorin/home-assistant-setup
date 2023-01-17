@@ -541,7 +541,7 @@ _compress >> "${logfile}" 2>&1
 _cleanup >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:01:00: `* 1 * * * /srv/influxdb-backup.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:02:00: `* 1 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
@@ -739,7 +739,7 @@ _backup >> "${logfile}" 2>&1
 _cleanup >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:02:00: `0 2 * * * /srv/grafana-backup.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:01:00: `0 2 * * * /srv/grafana-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
 
