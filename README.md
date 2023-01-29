@@ -151,6 +151,7 @@ In the future, dependent on where HA platform will go, we may change the governi
      volumes:
      ```
 3. Under `/srv`:
+   - Create the directory `log`.
    - Create the directory `ha/backup`.
    - Set right permissions to `backup` with `sudo chmod go+rw backup`.
 4. To all HA to utilize shell on server1, setup key-based authentication for SSH:
@@ -296,7 +297,8 @@ fi
 base_dir="/srv"
 stats_dir="/srv/stats"
 statsfile="${stats_dir}/docker_volume_sizes.txt"
-logfile="${base_dir}/docker-volume-sizes.log"
+logfile="${base_dir}/log/docker-volume-sizes.log"
+logfile_tmp="${base_dir}/log/docker-volume-sizes.tmp"
 timestamp="$(date +%Y%m%d_%H%M%S)"
 
 _initialize() {
@@ -330,6 +332,11 @@ _volume_sizes() {
 
 _finalize() {
     echo "$(date +%Y%m%d_%H%M%S): Finished Docker volume sizes."
+
+    tail -n10000 ${logfile} > ${logfile_tmp}
+    rm ${logfile}
+    mv ${logfile_tmp} ${logfile}
+
     exit 0
 }
 
@@ -440,8 +447,8 @@ fi
 container="ha-history-db"
 base_dir="/srv"
 docker_compose_file="${base_dir}/docker-compose.yml"
-logfile="${base_dir}/influxdb-backup.log"
-logfile_tmp="${base_dir}/influxdb-backup.tmp"
+logfile="${base_dir}/log/influxdb-backup.log"
+logfile_tmp="${base_dir}/log/influxdb-backup.tmp"
 backup_dir="${base_dir}/${container}/backup/backup.tmp"
 backup_container_dir="/backup/backup.tmp"
 backup_dest="${base_dir}/${container}/backup/"
@@ -640,8 +647,8 @@ fi
 container="ha-grafana"
 base_dir="/srv"
 docker_compose_file="${base_dir}/docker-compose.yml"
-logfile="${base_dir}/grafana-backup.log"
-logfile_tmp="${base_dir}/grafana-backup.tmp"
+logfile="${base_dir}/log/grafana-backup.log"
+logfile_tmp="${base_dir}/log/grafana-backup.tmp"
 backup_dir="${base_dir}/${container}/backup/backup.tmp"
 backup_container_dir="/backup/backup.tmp"
 backup_dest="${base_dir}/${container}/backup/"
@@ -802,7 +809,8 @@ fi
 
 # Variables:
 base_dir="/srv"
-logfile="${base_dir}/grafana-git.log"
+logfile="${base_dir}/log/grafana-git.log"
+logfile_tmp="${base_dir}/log/grafana-git.tmp"
 json_dir="${base_dir}/ha-grafana/json"
 temp_dir="${base_dir}/ha-grafana/temp"
 
@@ -922,6 +930,11 @@ _github_push() {
 
 _finalize() {
     echo "$(date +%Y%m%d_%H%M%S): ${status}"
+
+    tail -n10000 ${logfile} > ${logfile_tmp}
+    rm ${logfile}
+    mv ${logfile_tmp} ${logfile}
+
     exit 0
 }
 
@@ -957,9 +970,9 @@ fi
 # Variables:
 # -----------------------------------------------------------------
 base_dir="/srv"
-logfile="${base_dir}/backup-to-nas.log"
-logfile_tmp="${base_dir}/backup-to-nas.tmp"
-logfile_rsync="${base_dir}/backup-to-nas.rsync"
+logfile="${base_dir}/log/backup-to-nas.log"
+logfile_tmp="${base_dir}/log/backup-to-nas.tmp"
+logfile_rsync="${base_dir}/log/backup-to-nas.rsync"
 source_dir="/srv/"
 mount_dir="/mnt/nas"
 dest_dir="${mount_dir}/server1/srv"
