@@ -13,6 +13,7 @@ Therefore we have gone for a two-server setup according to below.
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
+  - [Git for shell-scripts]()
   - [OS/HW Statistics](https://github.com/slittorin/home-assistant-setup#oshw-statistics)
   - [Docker volume sizes](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#docker-volume-sizes).
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
@@ -76,6 +77,7 @@ This entitles that we need to set governing principles to support the capabiliti
     -~~No retention set for this bucket.~~
 
 ##### We therefore define the following for visualization
+
 - For simplified visualization of sensor-states and historical data:
   - Utilize the built in HA functions and graphs.
   - Possibly with added graph-capability through Apex Charts.
@@ -169,6 +171,53 @@ In the future, dependent on where HA platform will go, we may change the governi
        - `mkdir /config/.ssh`
        - `cd /config/.ssh`
        - `cp /root/.ssh/* .`
+
+## Git for shell-scripts
+
+We want to utilize Github Push to push shell-scripts from server1.
+
+Pre-requisities: That repository `grafana-config` is created in Github.
+
+Perform the following:
+
+1. If not already done, create a Github personal access token:
+   - According [instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+   - Set preferably an Expiration date (and keep note of the date and update the token accordingly).
+   - Set the following scopes:
+     - `repo`.
+     - `gists`.
+   - Copy the token.
+2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` on HA-server (where TOKEN is the copied token, ensure that username and repository is correct):
+   `GITHUB_CONNECT_STRING_SERVER1=https://TOKEN@github.com/slittorin/server1-config`
+3. Through the `File Editor` add-on, create `.gitignore` in `/srv/` with the following content:
+```git config
+# .gitignore for server1.
+
+# First rule: Ignore everything, all files in root and all directories.
+*
+*/*
+
+# Third rule: Whitelisted files, these will not be ignored.
+!*.yml
+!.gitignore
+!*.sh
+
+# Last rule: If we make a mistake above, ensure these files are ignored, otherwise your secret data/credentials will leak.
+.env
+```
+4. Run the following in the `/srv/` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
+   You will be asked to provide a comment at commit.
+```bash
+sudo git init
+sudo git config user.email "you@example.com"
+sudo git config user.name "Your Name"
+```
+5. Run the following in the `/srv/` directory (where TOKEN is the copied token, ensure that usename and repository is correct):\
+   Note that git push can give error, that is nothing to trouble-shoot.
+```bash
+sudo git remote add origin https://TOKEN@github.com/slittorin/server1-config
+sudo git push -u origin master
+```
 
 ## OS/HW statistics
 
@@ -765,7 +814,7 @@ Perform the following:
      - `repo`.
      - `gists`.
    - Copy the token.
-2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` (where TOKEN is the copied token, ensure that username and repository is correct):
+2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` on HA-server (where TOKEN is the copied token, ensure that username and repository is correct):
    `GITHUB_CONNECT_STRING=https://TOKEN@github.com/slittorin/grafana-config`
 3. We do not need a .gitignore file as we want all files and directories to be pushed.
 4. Through the 'SSH & Web terminal' run the following in the `/srv/ha-grafana/json` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
@@ -945,6 +994,7 @@ _sync_files >> "${logfile}" 2>&1
 _github_push >> "${logfile}" 2>&1
 _finalize >> "${logfile}" 2>&1
 ```
+
 ## Backup of Server1 to NAS.
 
 1. For the file `/srv/.env` add the following content, with password created on the NAS for the user `pi-backup` See [backup](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#backup).\
