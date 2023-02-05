@@ -13,7 +13,7 @@ Therefore we have gone for a two-server setup according to below.
 - [Conceptual design](https://github.com/slittorin/home-assistant-setup#conceptual-design)
 - [Setup for Server 1](https://github.com/slittorin/home-assistant-setup#setup-for-server-1)
   - [Preparation](https://github.com/slittorin/home-assistant-setup#preparation)
-  - [Git for shell-scripts]()
+  - [Git for shell-scripts](https://github.com/slittorin/home-assistant-setup#git-for-shell-scripts)
   - [OS/HW Statistics](https://github.com/slittorin/home-assistant-setup#oshw-statistics)
   - [Docker volume sizes](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#docker-volume-sizes).
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
@@ -830,7 +830,7 @@ sudo git config user.name "Your Name"
 sudo git remote add origin https://TOKEN@github.com/slittorin/grafana-config
 sudo git push -u origin master
 ```
-6. Through the `File Editor` add-on, add the file `/srv/grafana-git.sh` and add:
+6. Add the file `/srv/grafana-git.sh` to server1 and add:
 ```bash
 #!/bin/bash
 
