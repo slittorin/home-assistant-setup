@@ -219,6 +219,10 @@ sudo git remote add origin https://TOKEN@github.com/slittorin/server1-config
 sudo git push -u origin master
 ```
 
+error: src refspec master does not match any
+error: failed to push some refs to 'https://github.com/slittorin/server1-config'
+
+
 ## OS/HW statistics
 
 We want to track OS/HW statistics that can be pulled into HA.
