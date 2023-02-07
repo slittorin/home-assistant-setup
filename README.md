@@ -144,7 +144,7 @@ In the future, dependent on where HA platform will go, we may change the governi
   ```
 2. Under `/srv`:
    - Create the file `.env`.
-   - Create the file `/srv/docker-compose.yml` with the following content:
+   - Create the file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) with the following content:
      ```yaml
      version: '3'
      
@@ -189,7 +189,7 @@ Perform the following:
    - Copy the token.
 2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` on HA-server (where TOKEN is the copied token, ensure that username and repository is correct):
    `GITHUB_CONNECT_STRING_SERVER1=https://TOKEN@github.com/slittorin/server1-config`
-3. Through the `File Editor` add-on, create `.gitignore` in `/srv/` with the following content:
+3. Through the `File Editor` add-on, create `.gitignore` in `/srv/` [link](https://github.com/slittorin/server1-config) with the following content:
 ```git config
 # .gitignore for server1.
 
@@ -219,104 +219,12 @@ sudo git remote add origin https://TOKEN@github.com/slittorin/server1-config
 sudo git push -u origin master
 ```
 
-error: src refspec master does not match any
-error: failed to push some refs to 'https://github.com/slittorin/server1-config'
-
-
 ## OS/HW statistics
 
 We want to track OS/HW statistics that can be pulled into HA.
 
 1. We create a script that creates the necessary OS/HW statistics that we can store in files, that can be read by Home Assistant.
-   - Create the following file `/srv/os-stats.sh`:
-```bash
-#!/bin/bash
-
-# Purpose:
-# This script saves OS/HW statistics in files to be read by Home Assistant.
-# Script takes 15 minuts to run.
-# Put in cron to be run every 15 minutes.
-#
-# Requires sysstat to be installed.
-#
-# Statistics is saved to:
-# /srv/stats/disk_used_pct.txt          - Disk utilization in percent.
-# /srv/stats/mem_used_pct.txt           - RAM utilization in percent.
-# /srv/stats/swap_used_pct.txt          - Swap utilization in percent.
-# /srv/stats/cpu_used_pct.txt           - CPU utilization in percentage over 15 minutes.
-# /srv/stats/cpu_temp.txt               - CPU temperature in degrees celcius.
-# /srv/stats/uptime.txt                 - Uptime since (last reboot).
-#
-# Usage:
-# ./os-stats.sh
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-base_dir="/srv"
-stats_dir="/srv/stats"
-
-_initialize() {
-    cd "${base_dir}"
-    mkdir -p ${stats_dir}
-}
-
-# Pct used for specific mount directry, usually /
-_disk_used() {
-   MOUNT_DIR="/"
-   USED_PCT=`df -m ${MOUNT_DIR} | tail -1 | awk '{ print $5 }' | sed 's/%//'`
-   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/disk_used_pct.txt
-}
-
-# Ram used by the system.
-_ram_used() {
-   USED_PCT=`free -m | grep "Mem:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/mem_used_pct.txt
-}
-
-# Swap used by the system.
-_swap_used() {
-   USED_PCT=`free -m | grep "Swap:" | awk '{ printf("%.1f", (($2-$4) / $2)*100) }'`
-   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/swap_used_pct.txt
-}
-
-# CPU temp.
-# Works for RPI.
-_cpu_temp() {
-   USED_PCT=`cat /sys/class/thermal/thermal_zone0/temp | awk '{ printf("%.f", $1/1000) }'`
-   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/cpu_temp.txt
-}
-
-# System up since.
-_uptime() {
-   UPTIME=`uptime -s`
-   echo "$(date +%Y%m%d_%H%M%S),${UPTIME}" > ${stats_dir}/uptime.txt
-}
-
-# CPU percentage retrieved every 5 seconds for 180 times.
-# This gives the load average over 15 minutes. I.e. script runs for 15 minutes.
-_cpu_used() {
-   USED_PCT=`sar 5 180 | grep "Average" | awk '{ printf("%.f", (100-$8)) }'`
-   echo "$(date +%Y%m%d_%H%M%S),${USED_PCT}" > ${stats_dir}/cpu_used_pct.txt
-}
-
-_finalize() {
-    exit 0
-}
-
-# Main
-_initialize
-_disk_used
-_ram_used
-_swap_used
-_cpu_temp
-_uptime
-_cpu_used
-_finalize
-```
+   - Create the file `/srv/os-stats.sh` [link](https://github.com/slittorin/server1-config).
 2. Make it executable with `chmod ug+x os-stats.sh`.
 3. Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
 4. Check with `sudo crontab -l` that the row was added.
@@ -326,78 +234,7 @@ _finalize
 We want to track docker volume size statistics, that can be pulled into HA.
 
 1. We create a script that creates the necessary docker volume size statisticsls that we can store in files, that can be read by Home Assistant.
-   - Create the following file `/srv/docker-volume-sizes.sh`:
-```bash
-#!/bin/bash
-
-# Inspired by: https://medium.com/homullus/how-to-inspect-volumes-size-in-docker-de1068d57f6b
-#
-
-# Purpose:
-# This script lists all docker containers volumes and sizes.
-# Data is written to log-file and to comma separated file.
-# Sizes are in MB.
-#
-# Usage:
-# ./docker_volume_sizes.sh
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-base_dir="/srv"
-stats_dir="/srv/stats"
-statsfile="${stats_dir}/docker_volume_sizes.txt"
-logfile="${base_dir}/log/docker-volume-sizes.log"
-logfile_tmp="${base_dir}/log/docker-volume-sizes.tmp"
-timestamp="$(date +%Y%m%d_%H%M%S)"
-
-_initialize() {
-    cd "${base_dir}"
-    touch "${logfile}"
-    > "${statsfile}"
-
-    echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting Docker volume sizes."
-}
-
-_volume_sizes() {
-    for DOCKER_ID in `docker ps -a | awk '{ print $1 }' | tail -n +2`; do
-        DOCKER_NAME=`docker inspect -f {{.Name}} ${DOCKER_ID}`
-        echo "$(date +%Y%m%d_%H%M%S): For docker container: ${DOCKER_NAME} (${DOCKER_ID})"
-
-        VOLUME_IDS=$(docker inspect -f "{{.Config.Volumes}}" ${DOCKER_ID})
-        VOLUME_IDS=$(echo ${VOLUME_IDS} | sed 's/map\[//' | sed 's/]//')
-
-        ARRAY=(${VOLUME_IDS// / })
-        for i in "${!ARRAY[@]}"; do
-            VOLUME_ID=$(echo ${ARRAY[i]} | sed 's/:{}//')
-            VOLUME_SIZE=`docker exec -i ${DOCKER_NAME} du -d 0 -m ${VOLUME_ID} | awk '{ print $1 }'`
-
-            echo "$(date +%Y%m%d_%H%M%S): Size in MB for volume ${VOLUME_ID}: ${VOLUME_SIZE}"
-
-            echo "${timestamp},${DOCKER_NAME},${VOLUME_ID},${VOLUME_SIZE}" >> "${statsfile}"
-        done
-    done
-}
-
-_finalize() {
-    echo "$(date +%Y%m%d_%H%M%S): Finished Docker volume sizes."
-
-    tail -n10000 ${logfile} > ${logfile_tmp}
-    rm ${logfile}
-    mv ${logfile_tmp} ${logfile}
-
-    exit 0
-}
-
-# Main
-_initialize >> "${logfile}" 2>&1
-_volume_sizes >> "${logfile}" 2>&1
-_finalize >> "${logfile}" 2>&1
-```
+   - Create the  file `/srv/docker-volume-sizes.sh` [link](https://github.com/slittorin/server1-config).
 2. Make it executable with `chmod ug+x docker-volume-sizes.sh`.
 3. Add it to crontab with `sudo crontab -e` to run once each hour by adding: `0 * * * * /srv/docker-volume-sizes.sh`
 4. Check with `sudo crontab -l` that the row was added.
@@ -422,7 +259,7 @@ HA_HISTORY_DB_GRAFANA_TOKEN=not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
-4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+4. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'services:' and last added service (keep spaces):
 ```
 # Service: Home Assistant history database.
 # -----------------------------------------------------------------------------------
@@ -450,7 +287,7 @@ HA_HISTORY_DB_BUCKET=ha
       - "ha-history-db-config:/etc/influxdb"
       - "/srv/ha-history-db/backup:/backup"
 ```
-5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
+5. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'volumes:' and last added volume (keep spaces):
 ```
   ha-history-db-data:
   ha-history-db-config:
@@ -478,129 +315,7 @@ HA_HISTORY_DB_BUCKET=ha
 
 ### Backup for InfluxDB
 
-1. Create the following backup-script `/srv/influxdb-backup.sh` to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
-   Updated 2023-01-16 with error-management.
-```bash
-#!/bin/bash
-
-# Purpose:
-# This script backs up full influx according to:
-# - Daily snapshots, keep for 7 days (monday through saturday).
-# - Weekly snapshots (sunday), keep for 8 weeks.
-#
-# Usage:
-# ./influxdb-backup.sh
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-container="ha-history-db"
-base_dir="/srv"
-docker_compose_file="${base_dir}/docker-compose.yml"
-logfile="${base_dir}/log/influxdb-backup.log"
-logfile_tmp="${base_dir}/log/influxdb-backup.tmp"
-backup_dir="${base_dir}/${container}/backup/backup.tmp"
-backup_container_dir="/backup/backup.tmp"
-backup_dest="${base_dir}/${container}/backup/"
-error_occured=0
-error_message=""
-
-# Set name and retention according day of week.
-# Default is daily backup.
-day_of_week=$(date +%u)
-backup_pre="influxdb-backup-daily"
-retention_days=7
-if [[ "$day_of_week" == 7 ]]; then # On sundays.
-    backup_pre="influxdb-backup-weekly"
-    retention_days=57 # 8 weeks + 1 day.
-fi
-backup_filename="${backup_pre}-$(date +%Y%m%d_%H%M%S)"
-
-_initialize() {
-    cd "${base_dir}"
-    touch "${logfile}"
-
-    echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting InfluxDB backup."
-
-    rm -r "${backup_dir}/"
-    mkdir "${backup_dir}"
-}
-
-_backup() {
-    echo "$(date +%Y%m%d_%H%M%S): Backup of influxdb started."
-    RESULT=`docker-compose -f "${docker_compose_file}" exec -T "${container}" influx backup "${backup_container_dir}" -t "${HA_HISTORY_DB_ROOT_TOKEN}"`
-    RESULT_CODE=$?
-    if [ ${RESULT_CODE} -ne 0 ]; then
-       error_occured=1
-       error_message="influx backup error"
-       echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Backup of influxdb performed."
-    fi
-}
-
-_compress() {
-    if [ ${error_occured} -eq 0 ]; then
-           echo "$(date +%Y%m%d_%H%M%S): Compress of backup started."
-           tar_file="${backup_dest}${backup_filename}.tar"
-           RESULT=`tar -cvf "${tar_file}" "${backup_dir}/"`
-           RESULT_CODE=$?
-           if [ ${RESULT_CODE} -ne 0 ]; then
-              error_occured=1
-              error_message="tar command error when compressing"
-              echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-           else
-         echo "$(date +%Y%m%d_%H%M%S): Compress of backup performed."
-           fi
-        fi
-}
-
-_cleanup() {
-    if [ ${error_occured} -eq 0 ]; then
-           echo "$(date +%Y%m%d_%H%M%S): Retention of files started."
-           RESULT=`find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete`
-           RESULT_CODE=$?
-           if [ ${RESULT_CODE} -ne 0 ]; then
-              error_occured=1
-              error_message="Error when removing files (retention)"
-              echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-           else
-         echo "$(date +%Y%m%d_%H%M%S): Retention of files performed to ${retention_days} days for filenames starting with ${backup_pre}-"
-           fi
-        fi
-}
-
-_finalize() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Finished InfluxDB backup. No error."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 0
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Exited InfluxDB backup. ERROR: ${error_message}."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 1
-    fi
-}
-
-# Main
-_initialize >> "${logfile}" 2>&1
-_backup >> "${logfile}" 2>&1
-_compress >> "${logfile}" 2>&1
-_cleanup >> "${logfile}" 2>&1
-_finalize >> "${logfile}" 2>&1
-```
+1. Create the backup-script `/srv/influxdb-backup.sh` [link](https://github.com/slittorin/server1-config) to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:02:00: `* 1 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
@@ -617,7 +332,7 @@ _finalize >> "${logfile}" 2>&1
 ```
 HA_GRAFANA_HOSTNAME=localhost
 ```
-4. For the following file `/srv/docker-compose.yml` add the following content after 'services:' and last added service (keep spaces):
+4. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'services:' and last added service (keep spaces):
 ```
 # Service: Home Assistant grafana.
 # -----------------------------------------------------------------------------------
@@ -678,127 +393,8 @@ HA_GRAFANA_HOSTNAME=localhost
 
 ### Backup for Grafana Database
 
-1. Create the following backup-script `/srv/grafana-backup.sh` to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
+1. Create the backup-script `/srv/grafana-backup.sh` [link](https://github.com/slittorin/server1-config) to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
    Updated 2023-01-16 with error-management.
-```bash
-#!/bin/bash
-
-# This script backs up full Grafana according to:
-# - Daily snapshots, keep for 7 days (monday through saturday).
-# - Weekly snapshots (sunday), keep for 8 weeks.
-#
-# Usage:
-# ./grafana-backup.sh
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-# -----------------------------------------------------------------
-container="ha-grafana"
-base_dir="/srv"
-docker_compose_file="${base_dir}/docker-compose.yml"
-logfile="${base_dir}/log/grafana-backup.log"
-logfile_tmp="${base_dir}/log/grafana-backup.tmp"
-backup_dir="${base_dir}/${container}/backup/backup.tmp"
-backup_container_dir="/backup/backup.tmp"
-backup_dest="${base_dir}/${container}/backup/"
-error_occured=0
-error_message=""
-
-# Set name and retention according day of week.
-# Default is daily backup.
-# -----------------------------------------------------------------
-day_of_week=$(date +%u)
-backup_pre="grafana-backup-daily"
-retention_days=7
-if [[ "$day_of_week" == 7 ]]; then # On sundays.
-    backup_pre="grafana-backup-weekly"
-    retention_days=57 # 8 weeks + 1 day.
-fi
-backup_filename="${backup_pre}-$(date +%Y%m%d_%H%M%S)"
-
-_initialize() {
-    cd "${base_dir}"
-    touch "${logfile}"
-
-    echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting Grafana Backup."
-
-    rm -r "${backup_dir}/"
-    mkdir "${backup_dir}"
-}
-
-_backup() {
-    echo "$(date +%Y%m%d_%H%M%S): Copy of grafana.db started."
-    RESULT=`docker cp "${container}:/var/lib/grafana/grafana.db" "${backup_dir}"`
-    RESULT_CODE=$?
-    if [ ${RESULT_CODE} -ne 0 ]; then
-       error_occured=1
-       error_message="docker cp error"
-       echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Copy of grafana.db performed."
-    fi
-
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Compression of backup started."
-       tar_file="${backup_dest}${backup_filename}.tar"
-       RESULT=`tar -cvf "${tar_file}" "${backup_dir}/"`
-       RESULT_CODE=$?
-       if [ ${RESULT_CODE} -ne 0 ]; then
-          error_occured=1
-          error_message="tar command error when compressing"
-          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-       else
-          echo "$(date +%Y%m%d_%H%M%S): Compression of backup performed to: ${tar_file}"
-       fi
-   fi
-}
-
-_cleanup() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Retention of files started."
-       RESULT=`find "${backup_dest}" -name "${backup_pre}-*" -mtime +${retention_days} -delete`
-       RESULT_CODE=$?
-       if [ ${RESULT_CODE} -ne 0 ]; then
-          error_occured=1
-          error_message="Error when removing files (retention)"
-          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-       else
-          echo "$(date +%Y%m%d_%H%M%S): Retention of files performed to ${retention_days} days, for filenames starting with ${backup_pre}-"
-       fi
-    fi
-}
-
-_finalize() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Finished Grafana backup. No error."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 0
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Exited Grafana backup. ERROR: ${error_message}."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 1
-    fi
-}
-
-# Main
-_initialize >> "${logfile}" 2>&1
-_backup >> "${logfile}" 2>&1
-_cleanup >> "${logfile}" 2>&1
-_finalize >> "${logfile}" 2>&1
-```
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:01:00: `0 2 * * * /srv/grafana-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
@@ -834,170 +430,7 @@ sudo git config user.name "Your Name"
 sudo git remote add origin https://TOKEN@github.com/slittorin/grafana-config
 sudo git push -u origin master
 ```
-6. Add the file `/srv/grafana-git.sh` to server1 and add:
-```bash
-#!/bin/bash
-
-# Inspired by: https://chowdera.com/2020/12/20201216140412674p.html
-#              https://gist.github.com/crisidev/bd52bdcc7f029be2f295
-#
-# Purpose:
-# This script extract json for all dashboards in Grafana, and triggers a git push commit.
-#
-# Pre-req.:
-# - The Grafana server must be without login.
-# - Git must be configured for the directory.
-#
-# Usage:
-# ./grafana-git.sh HOST COMMENT
-#
-# HOST is the Grafana host/IP to connect to, including port.
-# COMMENT is the comment to add to the push-commit.
-# If empty, the default comment will be: "Minor change."
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-base_dir="/srv"
-logfile="${base_dir}/log/grafana-git.log"
-logfile_tmp="${base_dir}/log/grafana-git.tmp"
-json_dir="${base_dir}/ha-grafana/json"
-temp_dir="${base_dir}/ha-grafana/temp"
-
-touch ${logfile}
-
-# Check server.
-if [ -z "$1" ]; then
-    echo "ERROR. Server must be given."
-    echo "$(date +%Y%m%d_%H%M%S): ERROR. Server must be given." >> ${logfile}
-    exit 1
-else
-    HOST="$1"
-fi
-
-# Check input.
-if [ -z "$2" ]
-then
-    no_comment=1
-    COMMENT="Minor change."
-else
-    no_comment=0
-    COMMENT="$2"
-fi
-
-_initialize() {
-    cd "${base_dir}"
-
-    echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting Grafana Backup."
-
-    mkdir -p "${temp_dir}"
-    mkdir -p "${json_dir}"
-}
-
-_grafana_backup() {
-    echo "$(date +%Y%m%d_%H%M%S): Backing up..."
-
-    cd ${temp_dir}
-    rm -r ${temp_dir}/*
-
-    # Walk through all dashboards.
-    for dashboard_uid in $(curl -sS ${HOST}/api/search  | jq -r '.[] | select( .type | contains("dash-db")) | .uid') ; do
-       # Retrieve the dashboard.
-       dashboard_url=`echo ${HOST}/api/dashboards/uid/${dashboard_uid} | tr -d '\r'`
-       dashboard_json=$(curl -sS ${dashboard_url})
-
-       # Extract information from the json.
-       dashboard_slug=$(echo ${dashboard_json} | jq -r '.meta | .slug ' | sed -r 's/[ \/]+/_/g' )
-       dashboard_title=$(echo ${dashboard_json} | jq -r '.dashboard | .title' | sed -r 's/[ \/]+/_/g' )
-       dashboard_version=$(echo ${dashboard_json} | jq -r '.dashboard | .version')
-       dashboard_folder="$(echo ${dashboard_json} | jq -r '.meta | .folderTitle')"
-
-       # Save the json to temp-dir
-       mkdir -p ${temp_dir}/${dashboard_folder}
-       echo ${dashboard_json} | jq -r {meta:.meta}+.dashboard > ${temp_dir}/${dashboard_folder}/${dashboard_slug}.json
-
-       echo "$(date +%Y%m%d_%H%M%S): Retrieved dashboard with UID: ${dashboard_uid}, folder: ${dashboard_folder}, version ${dashboard_version}, title: ${dashboard_title}"
-    done
-}
-
-_sync_files() {
-    # Sync temp-dir with json-dir.
-    # Ensure that .git directory is kept.
-    cd ${temp_dir}
-    rsync -aczvS --delete --exclude '.git' . ${json_dir}
-    echo "$(date +%Y%m%d_%H%M%S): Synced temp-dir with json-dir."
-}
-
-_github_push() {
-    cd ${json_dir}
-
-    exit_code=0
-    status_error=""
-
-    # Add all in /config dir (according to .gitignore).
-    echo "$(date +%Y%m%d_%H%M%S): Added all in base directory"
-    git add .
-
-    # Loop through all directories and add to git (according to .gitignore).
-    for dir in */ ; do
-        echo "$(date +%Y%m%d_%H%M%S): Added directory: ${dir}"
-        git add "${dir}"
-    done
-
-    git status
-    git_exit_code=$?
-    if [ ${git_exit_code} -ne 0 ]
-    then
-        exit_code=1
-        status_error+=" status (${git_exit_code})"
-    fi
-
-    git commit -m "${COMMENT}"
-    git_exit_code=$?
-    if [ ${git_exit_code} -ne 0 ]
-    then
-        exit_code=1
-        status_error+=" commit (${git_exit_code})"
-    fi
-
-    git push origin master
-    git_exit_code=$?
-    if [ ${git_exit_code} -ne 0 ]
-    then
-        exit_code=1
-        status_error+=" push (${git_exit_code})"
-    fi
-
-    # Check if error occured with git commands.
-    if [ ${exit_code} -eq 0 ]
-    then
-        status="No error."
-    else
-        status="Error in: git${status_error}."
-    fi
-}
-
-_finalize() {
-    echo "$(date +%Y%m%d_%H%M%S): ${status}"
-
-    tail -n10000 ${logfile} > ${logfile_tmp}
-    rm ${logfile}
-    mv ${logfile_tmp} ${logfile}
-
-    exit 0
-}
-
-# Main
-_initialize >> "${logfile}" 2>&1
-_grafana_backup >> "${logfile}" 2>&1
-_sync_files >> "${logfile}" 2>&1
-_github_push >> "${logfile}" 2>&1
-_finalize >> "${logfile}" 2>&1
-```
+6. Create the file `/srv/grafana-git.sh` [link](https://github.com/slittorin/server1-config) on server1.
 
 ## Backup of Server1 to NAS.
 
@@ -1006,133 +439,7 @@ _finalize >> "${logfile}" 2>&1
    ```
    NAS_BACKUP_PASSWORD=PIBACKUPPASSWORD
    ```
-2. Create the following backup-script `/srv/backup-to-nas.sh` to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
-```bash
-#!/bin/bash
-
-# This script backs up all files in /srv to NAS:
-# - Ensure that copy on NAS is exact copy of /srv (besides unix permissions).
-#
-# Usage:
-# ./backup-to-nas.sh
-
-# Load environment variables (mainly secrets).
-if [ -f "/srv/.env" ]; then
-    export $(cat "/srv/.env" | grep -v '#' | sed 's/\r$//' | awk '/=/ {print $1}' )
-fi
-
-# Variables:
-# -----------------------------------------------------------------
-base_dir="/srv"
-logfile="${base_dir}/log/backup-to-nas.log"
-logfile_tmp="${base_dir}/log/backup-to-nas.tmp"
-logfile_rsync="${base_dir}/log/backup-to-nas.rsync"
-source_dir="/srv/"
-mount_dir="/mnt/nas"
-dest_dir="${mount_dir}/server1/srv"
-nas_host="//192.168.2.10/server-backup"
-nas_user="pi-backup"
-error_occured=0
-error_message=""
-
-_initialize() {
-    cd "${base_dir}"
-
-    touch "${logfile}"
-
-    mkdir -p ${mount_dir}
-
-    echo ""
-    echo "$(date +%Y%m%d_%H%M%S): Starting backup to NAS."
-}
-
-_mount() {
-    echo "$(date +%Y%m%d_%H%M%S): Mount of NAS-share started."
-    RESULT=`mount -t cifs -o username=${nas_user},password=${NAS_BACKUP_PASSWORD},vers=2.0 ${nas_host} ${mount_dir}`
-    RESULT_CODE=$?
-    if [ ${RESULT_CODE} -ne 0 ]; then
-       error_occured=1
-       error_message="Mount error"
-       echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Mount of NAS-share performed."
-    fi
-}
-
-_mkdir() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Creation of dir on NAS started."
-       RESULT=`mkdir -p ${dest_dir}`
-       RESULT_CODE=$?
-       if [ ${RESULT_CODE} -ne 0 ]; then
-          error_occured=1
-          error_message="mkdir error"
-          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-       else
-          echo "$(date +%Y%m%d_%H%M%S): Creation of dir on NAS performed."
-       fi
-   fi
-}
-
-_rsync() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Rsync to NAS-share started."
-       RESULT=`rsync -tr --delete --stats ${source_dir} ${dest_dir} > ${logfile_rsync}`
-       RESULT_CODE=$?
-       if [ ${RESULT_CODE} -ne 0 ]; then
-          error_occured=1
-          error_message="Rsync error"
-          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-       else
-          echo "$(date +%Y%m%d_%H%M%S): Rsync to NAS-share performed, output:"
-          cat ${logfile_rsync} | sed '0,/^$/d' | sed '/^$/d'
-       fi
-   fi
-}
-
-_unmount() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Unmount of NAS-share started."
-       RESULT=`umount ${mount_dir}`
-       RESULT_CODE=$?
-       if [ ${RESULT_CODE} -ne 0 ]; then
-          error_occured=1
-          error_message="Unmount error"
-          echo "$(date +%Y%m%d_%H%M%S): ERROR. ${error_message}. Exit code: ${RESULT_CODE}: ${RESULT}"
-       else
-          echo "$(date +%Y%m%d_%H%M%S): Unmount of NAS-share performed."
-       fi
-   fi
-}
-
-_finalize() {
-    if [ ${error_occured} -eq 0 ]; then
-       echo "$(date +%Y%m%d_%H%M%S): Finished backup to NAS. No error."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 0
-    else
-       echo "$(date +%Y%m%d_%H%M%S): Exited backup to NAS. ERROR: ${error_message}."
-
-       tail -n10000 ${logfile} > ${logfile_tmp}
-       rm ${logfile}
-       mv ${logfile_tmp} ${logfile}
-
-       exit 1
-    fi
-}
-
-# Main
-_initialize >> "${logfile}" 2>&1
-_mount >> "${logfile}" 2>&1
-_mkdir >> "${logfile}" 2>&1
-_rsync >> "${logfile}" 2>&1
-_unmount >> "${logfile}" 2>&1
-_finalize >> "${logfile}" 2>&1
-```
+2. Create the backup-script `/srv/backup-to-nas.sh` [link](https://github.com/slittorin/server1-config) to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
 3. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:03:00: `0 3 * * * /srv/backup-to-nas.sh`.
 4. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 5. Wait to the day after and check the log-file `/srv/backup-to-nas.log` and that files are correctly copied to the NAS-share.
