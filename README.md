@@ -144,7 +144,7 @@ In the future, dependent on where HA platform will go, we may change the governi
   ```
 2. Under `/srv`:
    - Create the file `.env`.
-   - Create the file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) with the following content:
+   - Create the file `/srv/docker-compose.yml` with the following content:
      ```yaml
      version: '3'
      
@@ -189,22 +189,7 @@ Perform the following:
    - Copy the token.
 2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` on HA-server (where TOKEN is the copied token, ensure that username and repository is correct):
    `GITHUB_CONNECT_STRING_SERVER1=https://TOKEN@github.com/slittorin/server1-config`
-3. Through the `File Editor` add-on, create `.gitignore` in `/srv/` [link](https://github.com/slittorin/server1-config) with the following content:
-```git config
-# .gitignore for server1.
-
-# First rule: Ignore everything, all files in root and all directories.
-*
-*/*
-
-# Third rule: Whitelisted files, these will not be ignored.
-!*.yml
-!.gitignore
-!*.sh
-
-# Last rule: If we make a mistake above, ensure these files are ignored, otherwise your secret data/credentials will leak.
-.env
-```
+3. Through the `File Editor` add-on, create [/srv/.gitignore](https://github.com/slittorin/server1-config/blob/master/.gitignore).
 4. Run the following in the `/srv/` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
    You will be asked to provide a comment at commit.
 ```bash
@@ -224,7 +209,7 @@ sudo git push -u origin master
 We want to track OS/HW statistics that can be pulled into HA.
 
 1. We create a script that creates the necessary OS/HW statistics that we can store in files, that can be read by Home Assistant.
-   - Create the file `/srv/os-stats.sh` [link](https://github.com/slittorin/server1-config).
+   - Create the file [/srv/os-stats.sh](https://github.com/slittorin/server1-config/blob/master/os-stats.sh).
 2. Make it executable with `chmod ug+x os-stats.sh`.
 3. Add it to crontab with `sudo crontab -e` to run every 15 minutes by adding: `*/15 * * * * /srv/os-stats.sh`
 4. Check with `sudo crontab -l` that the row was added.
@@ -234,7 +219,7 @@ We want to track OS/HW statistics that can be pulled into HA.
 We want to track docker volume size statistics, that can be pulled into HA.
 
 1. We create a script that creates the necessary docker volume size statisticsls that we can store in files, that can be read by Home Assistant.
-   - Create the  file `/srv/docker-volume-sizes.sh` [link](https://github.com/slittorin/server1-config).
+   - Create the  file [/srv/docker-volume-sizes.sh](https://github.com/slittorin/server1-config/blob/master/docker-volume-sizes.sh).
 2. Make it executable with `chmod ug+x docker-volume-sizes.sh`.
 3. Add it to crontab with `sudo crontab -e` to run once each hour by adding: `0 * * * * /srv/docker-volume-sizes.sh`
 4. Check with `sudo crontab -l` that the row was added.
@@ -259,40 +244,8 @@ HA_HISTORY_DB_GRAFANA_TOKEN=not shown here]
 HA_HISTORY_DB_ORG=lite
 HA_HISTORY_DB_BUCKET=ha
 ```
-4. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'services:' and last added service (keep spaces):
-```
-# Service: Home Assistant history database.
-# -----------------------------------------------------------------------------------
-  ha-history-db:
-# Add version number if necessary, otherwise keep 'latest'.
-    image: influxdb:latest
-    container_name: ha-history-db
-# We run in host mode to be able to be connected from HA.
-    ports:
-      - "8086:8086"
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=${HA_HISTORY_DB_ROOT_USER}
-      - DOCKER_INFLUXDB_INIT_PASSWORD=${HA_HISTORY_DB_ROOT_PASSWORD}
-      - DOCKER_INFLUXDB_INIT_ORG=${HA_HISTORY_DB_ORG}
-      - DOCKER_INFLUXDB_INIT_BUCKET=${HA_HISTORY_DB_BUCKET}
-      - INFLUXDB_LOGGING_FORMAT=auto
-      - INFLUXDB_LOGGING_LEVEL=warn
-      - INFLUXDB_LOGGING_SUPPRESS_LOGO=true
-    volumes:
-      - "ha-history-db-data:/var/lib/influxdb"
-      - "ha-history-db-config:/etc/influxdb"
-      - "/srv/ha-history-db/backup:/backup"
-```
-5. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'volumes:' and last added volume (keep spaces):
-```
-  ha-history-db-data:
-  ha-history-db-config:
-```
-6. In the `/srv` directory:
+4. For the  file [/srv/docker-compose.yml](https://github.com/slittorin/server1-config/blob/master/docker-compose.yml) add the concent necessary for ha-history-db container.
+5. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
@@ -306,7 +259,7 @@ HA_HISTORY_DB_BUCKET=ha
    CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS          PORTS                    NAMES
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    ```
-7. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
+6. In a web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
    - Through 'Data -> API Tokens -> admin's Token', copy the token and add to `HA_HISTORY_DB_ROOT_TOKEN` in `/srv/.env`.
    -  Go to `Data` -> `API Tokens` -> `Generate API Token` -> `Read/Write API Token`:
       - Set a descriptive name: `Read to HA bucket`
@@ -315,10 +268,10 @@ HA_HISTORY_DB_BUCKET=ha
 
 ### Backup for InfluxDB
 
-1. Create the backup-script `/srv/influxdb-backup.sh` [link](https://github.com/slittorin/server1-config) to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
+1. Create the backup-script [/srv/influxdb-backup.sh](https://github.com/slittorin/server1-config/blob/master/influxdb-backup.sh) to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:02:00: `* 1 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
-4. Wait to the day after and check the log-file `/srv/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+4. Wait to the day after and check the log-file `/srv/log/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
 
 ## Installation for Grafana
 
@@ -332,37 +285,8 @@ HA_HISTORY_DB_BUCKET=ha
 ```
 HA_GRAFANA_HOSTNAME=localhost
 ```
-4. For the following file `/srv/docker-compose.yml` [link](https://github.com/slittorin/server1-config) add the following content after 'services:' and last added service (keep spaces):
-```
-# Service: Home Assistant grafana.
-# -----------------------------------------------------------------------------------
-  ha-grafana:
-# Add version number if necessary, otherwise keep 'latest'.
-    image: grafana/grafana:latest
-    container_name: ha-grafana
-# We run in host mode to be able to be connected from HA.
-    ports:
-      - "3000:3000"
-    restart: always
-    env_file:
-      - .env
-    environment:
-# This will allow you to access your Grafana dashboards without having to log in and disables a security measure that prevents you from using Grafana in an iframe.
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ALLOW_EMBEDDING=true
-    volumes:
-      - "ha-grafana-data:/var/lib/grafana"
-      - "ha-grafana-config:/etc/grafana"
-      - "/srv/ha-grafana/backup:/backup"
-```
-5. For the following file `/srv/docker-compose.yml` add the following content after 'volumes:' and last added volume (keep spaces):
-```
-  ha-grafana-data:
-  ha-grafana-config:
-```
-6. In the `/srv` directory:
+4. For the following file [/srv/docker-compose.yml](https://github.com/slittorin/server1-config/blob/master/docker-compose.yml) add the content necessary for ha-grafana container.
+5. In the `/srv` directory:
    - Pull the docker image first with `sudo docker-compose pull`.
    - Build, create, start, and attach the InfluxDB-container with `sudo docker-compose up -d`. The output should look like the following:
    ```shell
@@ -377,7 +301,7 @@ HA_GRAFANA_HOSTNAME=localhost
    5a8f45730d6d   influxdb:latest          "/entrypoint.sh infl…"   33 seconds ago   Up 31 seconds   0.0.0.0:8086->8086/tcp   ha-history-db
    304599875ff0   grafana/grafana:latest   "/run.sh"                33 seconds ago   Up 31 seconds   0.0.0.0:3000->3000/tcp   ha-grafana
    ```
-7. In web browser go the IP address (or hostname) of server1 and port 3000, for example [http://192.168.2.30:3000/](http://192.168.2.30:3000/) (yes, we setup grafana to utilize no credentials).
+6. In web browser go the IP address (or hostname) of server1 and port 3000, for example [http://192.168.2.30:3000/](http://192.168.2.30:3000/) (yes, we setup grafana to utilize no credentials).
    - Go to `Configuration` -> `Data sources` -> `Add new data source`:
      - Choose `InfluxDB`:
      - Set `Name`: `ha_history_db`.
@@ -393,11 +317,10 @@ HA_GRAFANA_HOSTNAME=localhost
 
 ### Backup for Grafana Database
 
-1. Create the backup-script `/srv/grafana-backup.sh` [link](https://github.com/slittorin/server1-config) to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
-   Updated 2023-01-16 with error-management.
+1. Create the backup-script [/srv/grafana-backup.sh](https://github.com/slittorin/server1-config/blob/master/grafana-backup.sh) to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
 2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:01:00: `0 2 * * * /srv/grafana-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
-4. Wait to the day after and check the log-file `/srv/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
+4. Wait to the day after and check the log-file `/srv/log/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
 
 ### Git for Grafana
 
@@ -417,20 +340,20 @@ Perform the following:
 2. Through the `File Editor` add-on, add the following to `.env` in `/srv/` on HA-server (where TOKEN is the copied token, ensure that username and repository is correct):
    `GITHUB_CONNECT_STRING=https://TOKEN@github.com/slittorin/grafana-config`
 3. We do not need a .gitignore file as we want all files and directories to be pushed.
-4. Through the 'SSH & Web terminal' run the following in the `/srv/ha-grafana/json` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
+4. Run the following in the `/srv/ha-grafana/json` directory (change your email and name to match your Github account, and ensure that all directories you want to add to Github are present):\
    You will be asked to provide a comment at commit.
 ```bash
 sudo git init
 sudo git config user.email "you@example.com"
 sudo git config user.name "Your Name"
 ```
-5. Through the 'SSH & Web terminal' run the following in the `/config` directory (where TOKEN is the copied token, ensure that usename and repository is correct):\
+5. Run the following in the `/srv/ha-grafana/json` directory (where TOKEN is the copied token, ensure that usename and repository is correct):\
    Note that git push can give error, that is nothing to trouble shoot.
 ```bash
 sudo git remote add origin https://TOKEN@github.com/slittorin/grafana-config
 sudo git push -u origin master
 ```
-6. Create the file `/srv/grafana-git.sh` [link](https://github.com/slittorin/server1-config) on server1.
+6. Create the file [/srv/grafana-git.sh](https://github.com/slittorin/server1-config/blob/master/server1-git.sh).
 
 ## Backup of Server1 to NAS.
 
@@ -439,10 +362,10 @@ sudo git push -u origin master
    ```
    NAS_BACKUP_PASSWORD=PIBACKUPPASSWORD
    ```
-2. Create the backup-script `/srv/backup-to-nas.sh` [link](https://github.com/slittorin/server1-config) to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
+2. Create the backup-script [/srv/backup-to-nas.sh](https://github.com/slittorin/server1-config/blob/master/backup-to-nas.sh) to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
 3. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:03:00: `0 3 * * * /srv/backup-to-nas.sh`.
 4. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
-5. Wait to the day after and check the log-file `/srv/backup-to-nas.log` and that files are correctly copied to the NAS-share.
+5. Wait to the day after and check the log-file `/srv/log/backup-to-nas.log` and that files are correctly copied to the NAS-share.
 
 # Setup for Home Assistant.
 
@@ -461,11 +384,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
        - We do not set any port as we do not want the database to be exposed outside the host.
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'password' below to the right password):
    `recorder_db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4`
-3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
-   ```yaml
-   recorder:
-     db_url: !secret recorder_db_url
-   ```
+3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add `recorder:` configuration.
 4. Verify the config-file and restart.
 5. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
@@ -500,38 +419,15 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - With `File Editor` add the following files in directory `/config`:
      - `.env`
      - `sensors.yaml`
-6. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add at the bottom of the file:
-     - `allowlist_external_dirs` is required to get sensor.file to get last line of log-files.
-     ```yaml
-     homeassistant:
-       allowlist_external_dirs:
-         - '/config/logs'
-       
-       packages:
-     ```
-7. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add before the rows with `!include`:
-     ```yaml
-     sensor: !include sensors.yaml
-     ```
-8. We setup logging to log warning and above.
-   - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
-     ```yaml
-     logger:
-       default: warning
-     ```
-9. Setup Recorder correctly to keep data in database for 30 days, and write every 30:th (Updated 13/3-2022 from 10:th) second to the database to reduce load (even though we do not need it since we have an SSD disk instead of SD Card), and ensure that logbook is enabled:
-   - Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add after `recorder:`:
-     ```yaml
-         purge_keep_days: 30
-         auto_purge: true
-         commit_interval: 30
-     
-     logbook:
-     ```
-10. Add areas that is representative for your home.
+6. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and:
+   - Add at `allowlist_external_dirs:` and `packages:` configuration to bottom of the file.
+   - Add `sensor: !include sensors.yaml` configuration.
+   - Add `logger:` configuration.
+   - Add `purge_keep_days:`, `auto_purge:` and `commit_interval:` configuration.
+7. Add areas that is representative for your home.
    - Go to `Configuration` -> `Devices and services` -> `Areas` and update the rooms/areas that represent your home.
-11. Verify the config-file and restart.
-12. Verify that the setup is working correct by looking in the Home Assistant logfile.
+8. Verify the config-file and restart.
+9. Verify that the setup is working correct by looking in the Home Assistant logfile.
 
 ## History DB setup
 
@@ -543,29 +439,7 @@ For all changes to Home Assistant configuration files, you usually need to resta
    - Choose the newly created token and copy the token.
 2. Through the `File Editor` add-on, edit the file `/config/secrets.yaml` and add (change the string 'token' below to the right token):
    `history_db_token: TOKEN`.
-3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add:
-```yaml
-
-history:
-  exclude:
-    domains:
-      # Updater: Is not required in history data.
-      - updater
-    entity_globs:
-      # We do not include any of the test_-sensors.
-      - binary_sensor.test_*
-      - sensor.test_*
-
-influxdb:
-  api_version: 2
-  ssl: false
-  host: 192.168.2.30
-  port: 8086
-  organization: lite
-  bucket: ha
-  token: !secret history_db_token
-  max_retries: 3
-```
+3. Through the `File Editor` add-on, edit the file [/config/configuration.yaml](https://github.com/slittorin/home-assistant-config/blob/master/configuration.yaml) and add configuration for history and influxdb.
 4. Verify that data is written to the InfluxDB_bucket with:
    - In web browser go the IP address (or hostname) of server1 and port 8086, for example [http://192.168.2.30:8086/](http://192.168.2.30:8086/).
      - Check that data is written to the ha-bucket.
