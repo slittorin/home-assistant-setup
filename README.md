@@ -231,6 +231,8 @@ We want to track docker volume size statistics, that can be pulled into HA.
    - At time of writing (20220207) the 'latest' version is 2.1.1 (isolated with `sudo docker image inspect influxdb` and looking for 'INFLUXDB_VERSION').
 2. Create the directory `/srv/ha-history-db`, and the following sub-directories:
    - `backup`.
+   - `export`.
+   - `import`.
 3. For the file `/srv/.env` add the following content:
    - `HA_HISTORY_DB_ROOT_PASSWORD` - Chose a complex and long password.
    - `HA_HISTORY_DB_ROOT_TOKEN` - Can only be added after the InfluxDB instance has been setup (Data -> API Tokens -> admin's Token), see below.
