@@ -18,6 +18,7 @@ Therefore we have gone for a two-server setup according to below.
   - [Docker volume sizes](https://github.com/slittorin/home-assistant-setup/blob/main/README.md#docker-volume-sizes).
   - [Installation for InfluxDB](https://github.com/slittorin/home-assistant-setup#installation-for-influxdb)
     - [Backup for InfluxDB](https://github.com/slittorin/home-assistant-setup#backup-for-influxdb)
+    - [Export for InfluxDB](https://github.com/slittorin/home-assistant-setup#export-for-influxdb)
   - [Installation for Grafana](https://github.com/slittorin/home-assistant-setup#installation-for-grafana)
     - [Backup for Grafana](https://github.com/slittorin/home-assistant-setup#backup-for-grafana-database)
     - [Git for Grafana](https://github.com/slittorin/home-assistant-setup#git-for-grafana)
@@ -277,7 +278,7 @@ HA_HISTORY_DB_BUCKET=ha
 
 ### Export for InfluxDB
 
-After the (SSD-failed](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) in early 2023, and that restore of the InfluxDB-database gave a week of data that was lost slightly after summer 2022, I realised I needed a second way to backup my data.
+After the [SSD-failed](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) in early 2023, and that restore of the InfluxDB-database gave a week of data that was lost slightly after summer 2022, I realised I needed a second way to backup my data.
 
 Here I export each days data into csv-file, so that the data can be imported if necessary.
 
