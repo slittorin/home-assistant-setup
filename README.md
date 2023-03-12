@@ -271,9 +271,20 @@ HA_HISTORY_DB_BUCKET=ha
 ### Backup for InfluxDB
 
 1. Create the backup-script [/srv/influxdb-backup.sh](https://github.com/slittorin/server1-config/blob/master/influxdb-backup.sh) to take InfluxDB-backup through docker-compose (remember to set `chmod ugo+x`).
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:02:00: `* 1 * * * /srv/influxdb-backup.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 01:00:00: `* 1 * * * /srv/influxdb-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/log/influxdb-backup.log` and backup-directory `/srv/ha-history-db/backup` so that backups are taken.
+
+### Export for InfluxDB
+
+After the (SSD-failed](https://github.com/slittorin/home-assistant-maintenance/blob/main/README.md#failed-ssd-drive) in early 2023, and that restore of the InfluxDB-database gave a week of data that was lost slightly after summer 2022, I realised I needed a second way to backup my data.
+
+Here I export each days data into csv-file, so that the data can be imported if necessary.
+
+1. Create the export-script [/srv/influxdb-export-yesterday.sh](https://github.com/slittorin/server1-config/blob/master/influxdb-export-yesterday.sh) (remember to set `chmod ugo+x`).
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:10:00: `10 0 * * * /srv/influxdb-export-yesterday.sh`.
+3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
+4. Wait to the day after and check the log-file `/srv/log/influxdb-export-yesterday.log` and export-directory `/srv/ha-history-db/export` so that backups are taken.
 
 ## Installation for Grafana
 
@@ -320,7 +331,7 @@ HA_GRAFANA_HOSTNAME=localhost
 ### Backup for Grafana Database
 
 1. Create the backup-script [/srv/grafana-backup.sh](https://github.com/slittorin/server1-config/blob/master/grafana-backup.sh) to take Grafana-backup of the Sqlite-database file (remember to set `chmod ugo+x`).
-2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:01:00: `0 2 * * * /srv/grafana-backup.sh`.
+2. Create the following crontab entry with `sudo crontab -e` to run the script each day at 02:00:00: `0 2 * * * /srv/grafana-backup.sh`.
 3. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 4. Wait to the day after and check the log-file `/srv/log/grafana-backup.log` and backup-directory `/srv/ha-grafana/backup` so that backups are taken.
 
@@ -365,7 +376,7 @@ sudo git push -u origin master
    NAS_BACKUP_PASSWORD=PIBACKUPPASSWORD
    ```
 2. Create the backup-script [/srv/backup-to-nas.sh](https://github.com/slittorin/server1-config/blob/master/backup-to-nas.sh) to copy all under `/srv` to NAS (remember to set `chmod ugo+x`).
-3. Create the following crontab entry with `sudo crontab -e` to run the script each day at 00:03:00: `0 3 * * * /srv/backup-to-nas.sh`.
+3. Create the following crontab entry with `sudo crontab -e` to run the script each day at 03:00:00: `0 3 * * * /srv/backup-to-nas.sh`.
 4. Verify that the crontab is correct with `sudo crontab -l` (run in the context of user 'pi').
 5. Wait to the day after and check the log-file `/srv/log/backup-to-nas.log` and that files are correctly copied to the NAS-share.
 
