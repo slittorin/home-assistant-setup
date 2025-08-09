@@ -146,7 +146,7 @@ In the future, dependent on where HA platform will go, we may change the governi
 2. Under `/etc/docker`:
   - Create file for live-restore `echo '{ "live-restore": true }' | sudo tee /etc/docker/daemon.json`.
   - Reload docker: `sudo systemctl reload docker`.
-2. Under `/srv`:
+3. Under `/srv`:
    - Create the file `.env`.
    - Create the file `/srv/docker-compose.yml` with the following content:
      ```yaml
@@ -156,11 +156,11 @@ In the future, dependent on where HA platform will go, we may change the governi
      
      volumes:
      ```
-3. Under `/srv`:
+4. Under `/srv`:
    - Create the directory `log`.
    - Create the directory `ha/backup`.
    - Set right permissions to `backup` with `sudo chmod go+rw backup`.
-4. To all HA to utilize shell on server1, setup key-based authentication for SSH:
+5. To all HA to utilize shell on server1, setup key-based authentication for SSH:
    - Note that this step can only be performed after home assistant server is [setup with ssh access](https://github.com/slittorin/home-assistant-setup#general-setup):
    - On home assistant server with ssh:
      - At the home directory for user root, generate at key with `ssh-keygen -t rsa`:
