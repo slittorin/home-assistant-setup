@@ -143,6 +143,9 @@ In the future, dependent on where HA platform will go, we may change the governi
   sudo apt install sysstat
   sudo apt install jq
   ```
+2. Under `/etc/docker`:
+  - Create file for live-restore `echo '{ "live-restore": true }' | sudo tee /etc/docker/daemon.json`.
+  - Reload docker: `sudo systemctl reload docker`.
 2. Under `/srv`:
    - Create the file `.env`.
    - Create the file `/srv/docker-compose.yml` with the following content:
