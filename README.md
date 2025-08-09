@@ -98,8 +98,8 @@ In the future, dependent on where HA platform will go, we may change the governi
 - We push, on demand, all HA config files to [GitHub Repository home-assistant-config](https://github.com/slittorin/home-assistant-config).
   - See [Home Assistant Configuration Github push](https://github.com/slittorin/home-assistant-configuration#github-push).
 - Backup Home Assistant with snapshots (includes MariaDB database) according:
-  - Daily snapshots, keep for 7 days (monday through saturday).
-  - Weekly snapshots (sunday), keep for 8 weeks (57 days).
+  - Daily snapshots, keep for 14 ~~7~~ days (monday through saturday).
+  ~~- Weekly snapshots (sunday), keep for 8 weeks (57 days).~~
   - See [Home Assistant Configuration Backup](https://github.com/slittorin/home-assistant-configuration#backup)
   - Copy backup files daily to server 1 each morning: 
     - See [Home Assistant Configuration Copy backup files to server 1](https://github.com/slittorin/home-assistant-configuration#copy-backup-files-to-server1).
